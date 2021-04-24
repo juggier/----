@@ -575,9 +575,9 @@
 
             //网格数据
             const objectGeometries = [
+                new THREE.PlaneGeometry(12, 12),
                 new THREE.PlaneGeometry(15, 15),
-                new THREE.PlaneGeometry(20, 20),
-                new THREE.PlaneGeometry(25, 25)
+                new THREE.PlaneGeometry(20, 20)
             ];
 
             //贴图
@@ -587,7 +587,7 @@
 
                 case 'point':
                     material = new THREE.MeshBasicMaterial({
-                        map: loader.load('./textures/points.png'),
+                        map: loader.load('./textures/points1.png'),
                         transparent: true
                     });
                     break;
