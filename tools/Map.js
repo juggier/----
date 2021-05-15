@@ -33,11 +33,11 @@ function Map(map, window) {
     //this.chess = [red,blue];
 
     //场景模型集合：
-    this.hex_map = new THREE.Group();
+    this.hex_map = new THREE.Group();//地图的所有实例
     this.hex_map.name = 'hex_map';
-    this.red_chesses = new THREE.Group();
+    this.red_chesses = new THREE.Group();//所有红方棋子的实例
     this.red_chesses.name = 'red_chesses';
-    this.blue_chesses = new THREE.Group();
+    this.blue_chesses = new THREE.Group();//所有蓝方棋子的实例
     this.blue_chesses.name = 'blue_chesses';
 
     this.canvas = document.querySelector(map);
@@ -74,8 +74,9 @@ function Map(map, window) {
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
     this.pickHelper.clearPickPosition();
 
-    this.curRow, this.curColume, this.curElevation, this.speed;
-    this.curHex, this.curHexCategory, this.curChess, this.curChessCategory;
+    //(实时数据)
+    this.curRow, this.curColume, this.curElevation, this.speed; 
+    this.curHex, this.curHexCategory, this.curChess, this.curChessCategory; //当前的六角网格实例 ； 当前的六角网格种类 ； 当前的棋子实例 ； 当前的棋子种类
     
 
     let scope = this;
@@ -853,7 +854,6 @@ function Map(map, window) {
                 scope.curHex = scope.hex_map.children[chess.row * 81 + chess.colume];
                 scope.curChess = chess;
                 scope.curChessCategory = chess.color + '_' + chess.category;
-
             }
             else if(object.type == 'HexMap'){
 
@@ -888,8 +888,8 @@ function Map(map, window) {
             }
             
             console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
-            //console.log(scope.curHex);
-            //console.log(scope.curChess);
+            console.log(scope.curHex);
+            console.log(scope.curChess);
 
             document.getElementById("bottom-left").innerHTML = "x坐标： "+scope.curRow + " " +"y坐标： "+scope.curColume +"<br>"+"当前高程："+scope.curElevation;
 
