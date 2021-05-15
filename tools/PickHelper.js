@@ -24,7 +24,6 @@ function PickHelper(canvas,domElement,camera){
         const intersectedObjects = scope.raycaster.intersectObjects(objects.children,true);
         //console.log(intersectedObjects);
         if(intersectedObjects.length){
-            // 取最近的那一个
             scope.pickedObject = intersectedObjects[0].object;
         }
         

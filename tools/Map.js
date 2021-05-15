@@ -27,8 +27,8 @@ function Map(map, window) {
     this.jungles = [], this.houses = [], this.points = [[46, 47], [46, 48], [47, 47]];
 
         //棋子集合：红方、蓝方
-    let red_tank = [[23, 49]], red_armoured_vehicle = [[23, 50]];
-    let blue_tank = [[71, 45]], blue_infantry = [[71, 46]];
+    let red_tank = [[23, 49]], red_armoured_vehicle = [[23, 50]]; //(规定存放顺序红方：0 - tank；1 - armoured_vehicle)
+    let blue_tank = [[71, 45]], blue_infantry = [[71, 46]];//(规定存放顺序蓝方：0 - armoured_vehicle；1 - infantry)
     let red = [red_tank,red_armoured_vehicle] ,blue = [blue_tank,blue_infantry];
     //this.chess = [red,blue];
 
@@ -74,8 +74,14 @@ function Map(map, window) {
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
     this.pickHelper.clearPickPosition();
 
+<<<<<<< HEAD
     this.curRow, this.curColume, this.curChess, this.curElevation, this.curHex, this.speed;
 
+=======
+    this.curRow, this.curColume, this.curElevation, this.speed;
+    this.curHex, this.curHexCategory, this.curChess, this.curChessCategory;
+    
+>>>>>>> 8dd70b5a98be52d6a0d75caff6ce9e4a2f52e73e
 
     let scope = this;
 
@@ -177,11 +183,8 @@ function Map(map, window) {
     }
 
     function Draw(datas) {
-
-        //this.hex_map = new THREE.Group();
         CreateHexes(10, scope.row, scope.colume, datas);
         scope.scene.add(scope.hex_map);
-
         console.log(scope.scene);
 
     }
@@ -190,9 +193,9 @@ function Map(map, window) {
 
         //网格数据
         const objectGeometries = [
-            new THREE.PlaneGeometry(12, 12),
             new THREE.PlaneGeometry(15, 15),
-            new THREE.PlaneGeometry(20, 20)
+            new THREE.PlaneGeometry(18, 18),
+            new THREE.PlaneGeometry(22, 22)
         ];
 
         //贴图
@@ -279,7 +282,7 @@ function Map(map, window) {
             //红色坦克
         const r_tank_material_l = new THREE.MeshBasicMaterial({
             map: loader.load('./textures/red0-0.png'),
-            transparent: true
+            transparent: true, side: THREE.DoubleSide
         });
         const r_tank_material_r = new THREE.MeshBasicMaterial({
             map: loader.load('./textures/red0-180.png'),
@@ -290,7 +293,7 @@ function Map(map, window) {
             //红色装甲
         const r_armoured_vehicle_material_l = new THREE.MeshBasicMaterial({
             map: loader.load('./textures/red1-0.png'),
-            transparent: true
+            transparent: true, side: THREE.DoubleSide
         });
         const r_armoured_vehicle_material_r = new THREE.MeshBasicMaterial({
             map: loader.load('./textures/red1-180.png'),
@@ -325,7 +328,7 @@ function Map(map, window) {
         const blue_materials = [b_tank_materials,b_infantry_materials];
 
         // material.depthTest = false;
-        // material.renderOrder = 1;
+        //material.renderOrder = 1;
 
         //绘制
             //红色方
@@ -340,6 +343,7 @@ function Map(map, window) {
                 const detail_chessmesh = new THREE.Mesh(chessGeometries[0], red_materials[i][0]);
                 const detail_chessmesh2 = new THREE.Mesh(chessGeometries[1], red_materials[i][0]);
                 const simpler_chessmesh = new THREE.Mesh(chessGeometries[2], red_materials[i][0]);
+
 
                 const chessMesh = new LOD();
                 chessMesh.name = 'ChessLOD';
@@ -435,9 +439,14 @@ function Map(map, window) {
                 //绘制
                 //mesh+line
                 const detail_hexmesh = new THREE.Mesh(hexGeometry, new THREE.MeshBasicMaterial({ map: detail_tex }));
+                detail_hexmesh.position.z = -1;
                 const detail_hexmesh2 = new THREE.Mesh(hexGeometry, new THREE.MeshBasicMaterial({ map: detail_tex2 }));
+                detail_hexmesh2.position.z = -1;
                 const simpler_hexmesh = new THREE.Mesh(hexGeometry, new THREE.MeshBasicMaterial({ map: simpler_tex }));
+                simpler_hexmesh.position.z = -1;
                 const hexLine = new THREE.Line(hexLineGeometry, hexLineMaterial);
+                hexLine.position.z = -1;
+
                 hexLine.material.depthTest = false;
                 hexLine.renderOrder = 1;
 
@@ -515,7 +524,7 @@ function Map(map, window) {
 
         const texture = new THREE.CanvasTexture(text_ctx.canvas);
         texture.minFilter = THREE.LinearFilter;
-        const text_material = new THREE.MeshBasicMaterial({ map: texture });
+        //const text_material = new THREE.MeshBasicMaterial({ map: texture });
         texture.center.set(0.5, 0.5);
         texture.rotation = Math.PI / 2;
 
@@ -726,7 +735,7 @@ function Map(map, window) {
         }
 
         scope.camera_control.update();
-        scope.pickHelper.pick(scope.hex_map);
+        scope.pickHelper.pick(scope.scene);
         scope.UpdateUIAttribute();
 
         scope.renderer.setClearColor(0xb9d3ff, 1);
@@ -833,23 +842,70 @@ function Map(map, window) {
 
     //与UI属性传输交互
     this.UpdateUIAttribute = function(){
-        const object = scope.pickHelper.pickedObject;
-        if(object){
-            const hex = object.parent.parent;
-            scope.curRow = hex.row;
-            scope.curColume = hex.colume;
-            scope.curElevation = hex.elevation;
-            scope.curHex = hex;
+        let object = scope.pickHelper.pickedObject;
 
-            console.log(scope.curRow, scope.curColume, scope.curElevation);
-            console.log(scope.curHex);
+        if(object){
+
+            object = object.parent.parent;
+            //console.log(object);
+
+            scope.curRow = object.row;
+            scope.curColume = object.colume;
+            scope.curElevation = object.elevation;
+
+            if(object.type == 'Chess'){
+                const chess = object;
+                scope.curHex = scope.hex_map.children[chess.row * 81 + chess.colume];
+                scope.curChess = chess;
+                scope.curChessCategory = chess.color + '_' + chess.category;
+
+            }
+            else if(object.type == 'HexMap'){
+
+                const hex = object;
+                scope.curHex = hex;
+                scope.curChess = undefined;
+                scope.curChessCategory = undefined;
+
+                if (hex.point_Level == 0 && hex.land_Level == 0) {
+
+                    scope.curHexCategory = '平地'
+
+                } else if (hex.point_Level != 0) {
+
+                    scope.curHexCategory = '夺控点'
+
+                } else if (hex.land_Level != 0) {
+
+                    switch (hex.land_Level) {
+
+                        case 1:
+                            scope.curHexCategory = '居民地';
+                            break;
+                        case 2:
+                            scope.curHexCategory = '灌木丛';
+                            break;
+
+                    }
+
+                }
+
+            }
+            
+            console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
+            //console.log(scope.curHex);
+            //console.log(scope.curChess);
 
             document.getElementById("bottom-left").innerHTML = "x坐标： "+scope.curRow + " " +"y坐标： "+scope.curColume +"<br>"+"当前高程："+scope.curElevation;
+<<<<<<< HEAD
             //console.log(scope.curChess);
             
             getmap(this.hex_map.children);
+=======
+
+>>>>>>> 8dd70b5a98be52d6a0d75caff6ce9e4a2f52e73e
         }
-        else
+        else 
             console.log('pick none');
     }
 }

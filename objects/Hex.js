@@ -6,7 +6,7 @@ class Hex extends THREE.Object3D {
 
         super();
 
-        this.type = 'Object3D';
+        this.type = 'HexMap';
         this.name = id;
         this.pos = pos;
         this.elevation = elevation;
