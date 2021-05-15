@@ -1,4 +1,4 @@
-import * as THREE from './build/three.module.js';
+import * as THREE from '../build/three.module.js';
 
 class Hex extends THREE.Object3D {
 
@@ -6,7 +6,7 @@ class Hex extends THREE.Object3D {
 
         super();
 
-        this.type = 'HexMap';
+        this.type = 'Object3D';
         this.name = id;
         this.pos = pos;
         this.elevation = elevation;

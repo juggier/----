@@ -24,8 +24,8 @@ var CameraControl = function ( object, domElement) {
     this.zoomSpeed = 1.0;
     this.panSpeed = 1.0;
 
-    var LODLEVEL = {LEVEL0: 0,LEVEL1: 1,LEVEL2: 2,LEVEL3: 3 };
-    var ZOOMS = [ 2, 0.9, 0.5, 0.25];
+    let LODLEVEL = {LEVEL0: 0,LEVEL1: 1,LEVEL2: 2,LEVEL3: 3 };
+    let ZOOMS = [ 2, 0.9, 0.5, 0.25];
 
     this.lodLevel = LODLEVEL.LEVEL3;
     this.minZoom = 0;
@@ -47,33 +47,33 @@ var CameraControl = function ( object, domElement) {
     this._domElementKeyEvents = null;
 
     //内部属性
-    var scope = this;
+    let scope = this;
 
-    var changeEvent = {type:'change'};
-    var startEvent = {type:'start'};
-    var endEvent = {type:'end'};
+    let changeEvent = {type:'change'};
+    let startEvent = {type:'start'};
+    let endEvent = {type:'end'};
 
-    var STATE = {
+    let STATE = {
         NONE: -1,
         PAN: 0,
         DOLLY: 1,   
     }
 
-    var state = STATE.NONE;
+    let state = STATE.NONE;
 
-    var EPS = 0.000001;
+    let EPS = 0.000001;
 
-    var scale = 1;
-    var panOffset = new Vector3();
-    var zoomChanged = false;
+    let scale = 1;
+    let panOffset = new Vector3();
+    let zoomChanged = false;
 
-    var panStart = new Vector2();
-    var panEnd = new Vector2();
-    var panDelta = new Vector2();
+    let panStart = new Vector2();
+    let panEnd = new Vector2();
+    let panDelta = new Vector2();
 
-    var dollyStart = new Vector2();
-    var dollyEnd = new Vector2();
-    var dollyDelta = new Vector2();
+    let dollyStart = new Vector2();
+    let dollyEnd = new Vector2();
+    let dollyDelta = new Vector2();
 
     //公共方法
     this.listenToKeyEvents = function( domElement ){
@@ -104,17 +104,17 @@ var CameraControl = function ( object, domElement) {
 
     this.update = function() {
 
-        var offset = new Vector3();
+        let offset = new Vector3();
 
-        var quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0));
-        var quatInverse = quat.clone().invert();
+        let quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0));
+        let quatInverse = quat.clone().invert();
 
-        var lastPosition = new Vector3();
-        var lastQuaternion = new Quaternion();
+        let lastPosition = new Vector3();
+        let lastQuaternion = new Quaternion();
 
         return function update() {
 
-            var position = scope.object.position;
+            let position = scope.object.position;
 
             offset.copy(position).sub(scope.target);
 
@@ -198,9 +198,9 @@ var CameraControl = function ( object, domElement) {
         return lodLevel;
     }
 
-    var panLeft = function () {
+    let panLeft = function () {
 
-        var v = new Vector3();
+        let v = new Vector3();
         
 
         return function panLeft(distance, objectMatrix) {
@@ -213,9 +213,9 @@ var CameraControl = function ( object, domElement) {
 
     }();
 
-    var panUp = function () {
+    let panUp = function () {
 
-        var v = new Vector3();
+        let v = new Vector3();
 
         return function panUp(distance, objectMatrix) {
 
@@ -228,7 +228,7 @@ var CameraControl = function ( object, domElement) {
 
     }();
 
-    var pan = function(){
+    let pan = function(){
 
         //var offset = new Vector3();
 
@@ -310,7 +310,7 @@ var CameraControl = function ( object, domElement) {
         dollyEnd.set(event.clientX,event.clientY);
 
         dollyDelta.subVectors(dollyEnd,dollyStart);
-        console.log(dollyDelta.y);
+        // console.log(dollyDelta.y);
 
         if( dollyDelta.y > 0 ){
             

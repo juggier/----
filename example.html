@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>第一个三维场景</title>
+    <title>兵棋VR</title>
     <link rel="stylesheet" type="text/css" href="example.css">
 
 </head>
@@ -14,13 +14,14 @@
         <input type="radio" class="input_radio" name="inputType" id="inputType" value="2">导入地图
         <input id="input" type="file">
         <input id ="export" type="button" value="导出地图">
+        <input id="generate" type="button" value="生成地图">
         <canvas id = "Map"></canvas>
         <div id = "labels"></div>       
     </div>
 
     <script type="module">
         //导入Map库
-        import { Map } from './Map.js';
+        import { Map } from './tools/Map.js';
 
         main()
 
@@ -70,6 +71,20 @@
             botton.addEventListener('click', e =>{
                 map.mapToJson(botton,e) //导出地图的函数
                 },false);
+
+            //按钮事件
+            const botton2 = document.querySelector('#generate');
+            botton2.addEventListener('click', e => {
+                const reader = new FileReader();
+                reader.readAsBinaryString("./Mapheight.txt");
+                reader.onload = () => {
+
+                    const result = reader.result;
+                    map.GenerateMap(result);
+
+                }
+
+            }, false);
 
             //地图绘制的函数
             map.Render();

@@ -8,7 +8,7 @@ class LOD extends Object3D{
 
         this._currentZoom = 0;
         this.zoom = 0;
-        this.type = 'MyLOD';
+        this.type = 'LOD';
 
         Object.defineProperties( this , {
             zooms:{
