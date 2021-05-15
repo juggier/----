@@ -3,7 +3,7 @@ import {Weapon} from "./Weapon.js";
 
 //type:1-小型单位，2-中型单位，3-大型单位
 //建议直接获取information数组以获取信息
-//单位信息整合数组："information"：[id,name,health,defense,move_speed,cooling,armour,visibility,weapon_id,type]
+//单位信息整合数组："information"：[id,name,health,defense,move_speed,cooling,armour,visibility,weapon_id,size]
 class Chess extends THREE.Object3D {
 
     constructor() {
@@ -17,7 +17,8 @@ class Chess extends THREE.Object3D {
         this.elevation = undefined;
         this.row = undefined;
         this.colume = undefined;
-        this.color = undefined;//0是红队，1是蓝队
+        this.color = undefined;//'red'是红队，'blue'是蓝队
+        this.category = undefined;//兵种分类
 
         this.information = undefined;
         this.No = undefined;
@@ -30,7 +31,7 @@ class Chess extends THREE.Object3D {
         this.visibility = undefined;
         this.weapon_id = undefined;
         //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-        this.type = undefined;
+        this.size = undefined;
 
     }
 
@@ -140,7 +141,8 @@ class Tank extends Chess{
 
     constructor(id,color,pos,elevation,row,colume){
         super();
-
+        this.type = 'Chess';
+        this.category = 'Tank';
         this.pos = pos;
         this.elevation = elevation;
         this.row = row;
@@ -159,7 +161,7 @@ class Tank extends Chess{
             this.visibility = 9;
             this.weapon_id = [22, 23, 25];
             //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-            this.type = 3;
+            this.size = 3;
         }
         else if (color == 'blue'){
             this.information = [id, "tank_" + color, 12, 2, 8, 0, true, 11, 3];
@@ -173,7 +175,7 @@ class Tank extends Chess{
             this.visibility = 11;
             this.weapon_id = [21, 23, 25];
             //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-            this.type = 3;
+            this.size = 3;
         }
 
     }
@@ -182,7 +184,8 @@ class Tank extends Chess{
 class ArmouredVehicle extends Chess {
     constructor(id, color, pos, elevation, row, colume) {
         super();
-
+        this.type = 'Chess';
+        this.category = 'ArmouredVehicle'
         this.pos = pos;
         this.elevation = elevation;
         this.row = row;
@@ -201,7 +204,7 @@ class ArmouredVehicle extends Chess {
             this.visibility = 7;
             this.weapon_id = [23, 25];
             //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-            this.type = 2;
+            this.size = 2;
         } 
         else if (color == 'blue'){
             this.information = [id, "armoured_vehicle_" + color, 6, 2, 11, 0, true, 8, 2];
@@ -215,7 +218,7 @@ class ArmouredVehicle extends Chess {
             this.visibility = 8;
             this.weapon_id = [23, 25];
             //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-            this.type = 2;
+            this.size = 2;
         }
 
     }
@@ -224,7 +227,8 @@ class ArmouredVehicle extends Chess {
 class Infantry extends Chess {
     constructor(id, color, pos, elevation, row, colume) {
         super();
-
+        this.type = 'Chess';
+        this.category = 'Infantry';
         this.pos = pos;
         this.elevation = elevation;
         this.row = row;
@@ -242,7 +246,7 @@ class Infantry extends Chess {
         this.visibility = 3;
         this.weapon_id = [24, 26];
         //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
-        this.type = 1;
+        this.size = 1;
 
     }
 }
