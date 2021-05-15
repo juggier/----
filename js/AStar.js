@@ -1,9 +1,3 @@
-var map = multiArray(row, col);
-
-
-function getmap()
-
-
 function search_Road(start_x, start_y, start_z, end_x, end_y, end_z) {
     var openlist = [];
     var closelist = [];
@@ -69,20 +63,6 @@ function search_Road(start_x, start_y, start_z, end_x, end_y, end_z) {
         while (currentobj.x != start_x.x || currentobj.y != start_y);
         return result;
     }
-
-
-
-    function multiArray(row, col) {
-        var a = new Array(row);
-        for (var i = 0, len = a.length; i < len; i++) {
-            a[i] = new Array(col);
-            for (var j = 0; j < col; j++) {
-                a[i][j] = 0;
-            }
-        }
-        return a;
-    }
-
 
     function sortF(a, b) {
         return b.f - a.f;
