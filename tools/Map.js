@@ -71,11 +71,11 @@ function Map(map, window) {
 
 
         //UI交互属性
-
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
     this.pickHelper.clearPickPosition();
 
     this.curRow, this.curColume, this.curChess, this.curElevation, this.curHex, this.speed;
+    
 
     let scope = this;
 
@@ -843,6 +843,8 @@ function Map(map, window) {
 
             console.log(scope.curRow, scope.curColume, scope.curElevation);
             console.log(scope.curHex);
+
+            document.getElementById("bottom-left").innerHTML = "x坐标： "+scope.curRow + " " +"y坐标： "+scope.curColume +"<br>"+"当前高程："+scope.curElevation;
         //console.log(scope.curChess);
         }
         else

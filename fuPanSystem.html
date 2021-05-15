@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兵棋推演复盘系统</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/fuPanSystem.css">
+    <script type="text/javascript" src="../js/tool.js"></script>
+    <script type="text/javascript" src="../js/fuPanSystem.js"></script>
+    
+</head>
+<body>
+
+
+    <!-- 顶部导航栏 -->
+    <div class="topbar">
+        <!-- 左上角logo -->
+        <div class="logo">
+            <!-- <h1>兵棋推演复盘系统</h1> -->
+        </div>
+        <!-- 中间的步骤显示 -->
+        <div class="time-bar">
+            <div class="step">第<span>xxxxx</span>步</div>
+            <div class="time"><span>1</span>秒/步</div>
+        </div>
+        <!-- 顶部右侧菜单 -->
+        <div class="topbar-right">
+            <ul>
+                <li>
+                    
+                    <a class="onloadButton" href="javascript:;">
+                        <img src="../img/复盘右上角组件/上传.png" alt="上传">
+                    </a>
+
+                    <div id = "container">
+                        <input type="radio" class="input_radio" name="inputType" id="inputType" value="1" checked>生成地图 <br>
+                        <input type="radio" class="input_radio" name="inputType" id="inputType" value="2">导入地图 <br>
+                        <input id="input" type="file">
+                        <input id ="export" type="button" value="导出地图">
+                        <canvas id = "Map"></canvas>
+                        <div id = "labels"></div>
+                    </div>
+                </li>
+                <li>
+                    <a class="direct" href="javascript:;">
+                        <img src="../img/复盘右上角组件/导演.png" alt="导演">
+                        <!-- 设置弹出层 -->
+                        <div class="view">
+                            <button class="red">
+                                RED
+                                <!-- <img src="../img/复盘右上角组件/Red   红方.png" alt="红方"> -->
+                            </button>
+                            <button class="blue">
+                                BLUE
+                                <!-- <img src="../img/复盘右上角组件/Blue    蓝方.png" alt="蓝方"> -->
+                            </button>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <img src="../img/右上角组件/模型.png" alt="模型/军标">
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+                        <img src="../img/右上角组件/兵力.png" alt="兵力">
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- 左侧导航栏 -->
+    <div class="left-bar-wrapper">
+
+    
+        <div class="left-bar">
+            <button class="mStrength">兵力编成</button>
+            <div class="blue-box">蓝方</div>
+            <div class="blue-data">
+                <div>模拟数据1</div>
+                <div>模拟数据1</div>
+                <div>模拟数据1</div>
+            </div>
+            <div class="red-box">红方</div>
+            <div class="red-data">
+                <div>模拟数据2</div>
+                <div>模拟数据2</div>
+                <div>模拟数据2</div>
+                <div>模拟数据2</div>
+                <div>模拟数据2</div>
+            </div>
+         </div>
+
+    </div>
+
+    <!-- 右侧导航栏 -->
+    <div class="right-bar">
+        <div class="right-menu">
+            <button class="score-button">比分裁决</button><br>
+            <button class="right-button">状态</button><br>
+            <button class="right-button">武器</button><br>
+            <button class="right-button">播报</button><br>
+            <button class="right-button">控制</button><br>
+            <button class="right-button">间瞄</button><br>
+            <button class="right-button">任务</button>
+        </div>
+        <div class="pannal">
+            <h2>夺空点得分</h2>
+            <div>
+                <h3 class="blue-s">123</h3>
+                <h3 class="red-s">123</h3>
+            </div>
+
+            <h2>剩余算子得分</h2>
+            <div></div>
+
+            <h2>战斗得分</h2>
+            <div></div>
+
+            <h2>净胜分</h2>
+            <div></div>
+
+            <h2>总得分</h2>
+            <div></div>
+
+        </div>
+    </div>
+
+        <!-- 底部 -->
+        <div class="bottom-wrapper">
+            
+            <!-- 底部左侧 -->
+            <div class="bottom-left">xy</div>
+
+        </div>
+    <script type="module" src="../js/map.js"></script>
+</body>
+</html>

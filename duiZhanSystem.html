@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兵棋推演对战系统</title>
+    
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/duiZhanSystem.css">
+    <script type="text/javascript" src="../js/tool.js"></script>
+    <script type="text/javascript" src="../js/duiZhanSystem.js"></script>
+
+    <style>
+        #Map{
+            position: absolute;
+            z-index: 0;
+        }
+    </style>
+
+</head>
+<body>
+    
+    <canvas id = "Map"></canvas>
+    <div id="window-map" class="window-map">
+
+            <!-- 顶部导航栏 -->
+        <div class="topbar">
+            <!-- 左上角logo -->
+            <div class="logo">
+                <!-- <h1>兵棋推演复盘系统</h1> -->
+            </div>
+            <!-- 中间的步骤显示 -->
+            <div class="time-bar">
+                <div class="step">第<span>xxxxx</span>步</div>
+                <div class="time"><span>1</span>秒/步</div>
+            </div>
+            <!-- 顶部右侧菜单 -->
+            <div id="topbar-right" class="topbar-right">
+                <ul>
+                    <li>
+
+                        <a class="onloadButton" href="javascript:;">
+                            <img src="../img/右上角组件/测量.png" alt="测量">
+                        </a>
+    
+                        <div id = "container">
+                            <input type="radio" class="input_radio" name="inputType" id="inputType" value="1" checked>生成地图 <br>
+                            <input type="radio" class="input_radio" name="inputType" id="inputType" value="2">导入地图 <br>
+                            <input id="input" type="file">
+                            <input id ="export" type="button" value="导出地图">
+                            <input id="generate" type="button" value="生成地图">
+                            <div id = "labels"></div>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="direct" href="javascript:;">
+                            <img src="../img/右上角组件/模型.png" alt="模型">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:;">
+                            <img src="../img/右上角组件/兵力.png" alt="兵力">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:;">
+                            <img src="../img/右上角组件/开始.png" alt="开始">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+    
+        </div>
+    
+        <!-- 左侧导航栏 -->
+        <div class="left-bar-wrapper">
+    
+        
+            <div class="left-bar">
+                <button class="mStrength">兵力编成</button>
+                <div class="blue-box">蓝方</div>
+                <div class="blue-data">
+                    <div>模拟数据1</div>
+                    <div>模拟数据1</div>
+                    <div>模拟数据1</div>
+                </div>
+                <div class="red-box">红方</div>
+                <div class="red-data">
+                    <div>模拟数据2</div>
+                    <div>模拟数据2</div>
+                    <div>模拟数据2</div>
+                    <div>模拟数据2</div>
+                    <div>模拟数据2</div>
+                </div>
+             </div>
+    
+        </div>
+    
+        <!-- 右侧导航栏 -->
+        <div class="right-bar">
+            <div class="right-menu">
+                <button class="score-button">比分裁决</button><br>
+                <button class="right-button">状态</button><br>
+                <button class="right-button">武器</button><br>
+                <button class="right-button">播报</button><br>
+                <button class="right-button">控制</button><br>
+                <button class="right-button">间瞄</button><br>
+                <button class="right-button">任务</button>
+            </div>
+            <div class="pannal">
+                <h2>夺空点得分</h2>
+                <div>
+                    <h3 class="blue-s">123</h3>
+                    <h3 class="red-s">123</h3>
+                </div>
+    
+                <h2>剩余算子得分</h2>
+                <div></div>
+    
+                <h2>战斗得分</h2>
+                <div></div>
+    
+                <h2>净胜分</h2>
+                <div></div>
+    
+                <h2>总得分</h2>
+                <div></div>
+    
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="bottom-wrapper">
+            
+            <!-- 底部左侧 -->
+            <div class="bottom-left"> <font  id="bottom-left" size ="4" color = "#FFFFFF" > xy </font></div>
+
+
+
+            <!-- 底部右侧菜单 -->
+            <div class="bottom-right">
+                <ul>
+                    <li>
+                        <button>
+                            <img src="../img/右下角组件/机动.png" alt="机动">
+                        </button>
+                    </li>
+
+                    <li>
+                        <button>
+                            <img src="../img/右下角组件/打击.png" alt="打击">
+                        </button>
+                    </li>
+
+                    <li>
+                        <button>
+                            <img src="../img/右下角组件/上车.png" alt="上车">
+                        </button>
+                    </li>
+
+                    <li>
+                        <button>
+                            <img src="../img/右下角组件/掩蔽.png" alt="掩蔽">
+                        </button>
+                    </li>
+
+                    <li>
+                        <button>
+                            <img src="../img/右下角组件/停止.png" alt="停止">
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>    
+
+    </div>
+</body>
+
+
+<script type="module">
+    //导入Map库
+    import { Map } from '../tools/Map.js';
+
+    main()
+
+    function main(){
+        //新建Map实例
+        let map = new Map("#Map",window);
+
+        //判断类型
+        let type = 1;
+        const radio = document.getElementsByName("inputType");
+        radio[0].onclick = function(){
+
+            type = radio[0].value;
+
+        };
+        radio[1].onclick = function () {
+
+            type = radio[1].value;
+
+        };
+        
+        //生成地图或者导入地图
+        const input = document.querySelector('input[type=file]');
+        input.addEventListener('change',()=>{
+
+            const reader = new FileReader();
+            reader.readAsBinaryString(input.files[0]);
+            reader.onload = ()=>{
+
+                const result = reader.result;
+
+                if(type == 1){
+                    //生成地图的函数
+                    map.GenerateMap(result);
+
+                }else if(type == 2){
+                    //导入地图的函数
+                    map.InputMap(result);
+
+                }
+
+            }
+        },false);
+
+        //按钮事件
+        const botton = document.querySelector('#export');
+        botton.addEventListener('click', e =>{
+            map.mapToJson(botton,e) //导出地图的函数
+            },false);
+
+        //按钮事件
+        const botton2 = document.querySelector('#generate');
+        botton2.addEventListener('click', e => {
+            const reader = new FileReader();
+            reader.readAsBinaryString("./Mapheight.txt");
+            reader.onload = () => {
+
+                const result = reader.result;
+                map.GenerateMap(result);
+
+            }
+
+        }, false);
+
+        //地图绘制的函数
+        map.Render();
+
+        //window.addEventListener('keydown', (e) => {
+        //     e.preventDefault();
+        //     window.focus();
+        // });
+    }
+
+</script> 
+
+<script>
+    
+</script>
+</html>

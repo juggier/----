@@ -1,0 +1,19 @@
+
+.clearfix::before,
+.clearfix::after{
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.leftBar{
+    width: 200px;
+    height: 424px;
+    /* background-color: papayawhip; */
+    background-image: url("../img/左侧背景块.png") ;
+    background-size: 200px ;
+
+    position: relative;
+    top: 40px;
+    left: 40px;
+}
