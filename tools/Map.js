@@ -68,8 +68,10 @@ function Map(map, window) {
     // this.scene.add(gro);
     // console.log(this.scene);
 
+
+
         //UI交互属性
-    //let pick_hex = new THREE.Group();
+
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
     this.pickHelper.clearPickPosition();
 
