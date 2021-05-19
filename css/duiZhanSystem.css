@@ -306,6 +306,16 @@
     right: 0;
 }
 
+/* 武器列表 */
+#weapon_information{
+    position: relative;
+    left: 1280px;
+    top: 80px;
+    width: 100px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.199);
+}
+
 .bottom-right ul{
     margin-left: 30px;
 }

@@ -1,4 +1,5 @@
 function Weapon(){
+    
     this.weaponlist = {
         //[id name attack range anti_armoured cooling type] 7项
         //weapon_type:1-轻武器 2-火炮类武器 3-导弹类武器

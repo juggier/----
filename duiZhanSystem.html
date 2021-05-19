@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/duiZhanSystem.css">
     <script type="text/javascript" src="../js/tool.js"></script>
     <script type="text/javascript" src="../js/duiZhanSystem.js"></script>
+    <script type="text/javascript" src="../js/Ai_Control.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
 
     <style>
         #Map{
@@ -131,6 +133,14 @@
             </div>
         </div>
 
+
+        <div>
+            <p>武器选择:</p>
+            <div id="weapon_information">
+
+            </div>
+        </div>
+
         <!-- 底部 -->
         <div class="bottom-wrapper">
             
@@ -141,15 +151,17 @@
 
             <!-- 底部右侧菜单 -->
             <div class="bottom-right">
+
+
                 <ul>
                     <li>
-                        <button>
+                        <button id="move_button">
                             <img src="../img/右下角组件/机动.png" alt="机动">
                         </button>
                     </li>
 
                     <li>
-                        <button>
+                        <button id="attack_button">
                             <img src="../img/右下角组件/打击.png" alt="打击">
                         </button>
                     </li>
@@ -180,14 +192,71 @@
 
 
 <script type="module">
+
     //导入Map库
     import { Map } from '../tools/Map.js';
+    import { AStar } from '../js/AStar.js';
+    //import { AI_Control } from '../js/Ai_Control.js';
+
+
+    //-----------------
+    var ThisPiece = { //组件信息数组标准："information"：[id,name,health,defense,move_speed,cooling,armour,visibility]
+            "information": [],
+            "id": null,
+            "weapon_id": [],
+            "position":{},
+        } //获取当前选择棋子的信息
+    var This_piece_weapon = {} //存储当前棋子可用的武器信息
+    var choose_weapon_obj = []; //存储选择的武器信息，用于攻击数值传递
+    var EnemyPiece = {
+            "information": [],
+            "position": {},
+        } 
+        //存储被攻击的敌方单位信息
+    var begin_attack = false;//确定是否摁下打击按钮
+    var begin_move = false;//确定是否摁下移动按钮
+    //-----------------
+    
 
     main()
 
-    function main(){
+    function main()
+    {
         //新建Map实例
-        let map = new Map("#Map",window);
+        var map = new Map("#Map",window);
+
+        //--------------
+        var attack_button = document.getElementById("attack_button");
+        var move_button = document.getElementById("move_button");
+        attack_button.onclick = function(){
+        //攻击按钮判断，判断是否选取了武器，当前选择的单位是否处于冷却之中
+            if(choose_weapon_obj!=null)
+            {
+                for (var key in map.red_chesses.children) 
+                {
+                    if (ThisPiece.information[0] == map.red_chesses.children[key].information[0]) {
+                        var cooling = map.red_chesses.children[key].information[5];
+                    }
+                }
+                if (cooling > 0) 
+                {
+                    alert("冷却中 , "+"冷却时间还有："+ cooling);
+                } 
+                else {
+                    begin_attack = true;
+                    alert(begin_attack);
+                }
+            }
+        }
+        move_button.onclick = function(){
+            for(let key in ThisPiece.position)
+            { 
+                console.log("可以移动");
+                setTimeout(function(){begin_move = true;},100);
+            }
+        }
+        //--------------
+
 
         //判断类型
         let type = 1;
@@ -220,7 +289,6 @@
                 }else if(type == 2){
                     //导入地图的函数
                     map.InputMap(result);
-
                 }
 
             }
@@ -246,6 +314,264 @@
 
         }, false);
 
+        //获取当前棋子信息 //获取被攻击棋子信息 //存储造成的冷却与造成的伤害
+    window.addEventListener('click',e=>
+    {
+        var nowChess = map.curChess;
+        //getmap(this.hex_map.children);
+        if(nowChess)
+        {
+            if(nowChess.color == "red")
+            {
+                ThisPiece = { //组件信息数组标准："information"：[id,name,health,defense,move_speed,cooling,armour,visibility]
+                                "information": [],
+                                "id": null,
+                                "weapon_id": [],
+                                "position":{},
+                            }
+                
+                for(var i = 0 ; i<nowChess.information.length;i++)
+                {
+                    ThisPiece.information[i] = nowChess.information[i];
+                }
+                for(var i = 0; i<nowChess.weapon_id[i];i++)
+                {
+                    ThisPiece.weapon_id[i] = nowChess.weapon_id[i]
+                }
+
+                ThisPiece.position = {};
+                ThisPiece.position["row"] = map.curRow;
+                ThisPiece.position["col"] = map.curColume; 
+                console.log(ThisPiece.position);
+
+
+
+
+                ClearElement("weapon_information");
+                getweapon(ThisPiece.weapon_id);
+            }//己方（red）
+            if(nowChess.color == "blue")
+            {
+                if(begin_attack != false)
+                {
+                    //alert("已选取敌方单位");
+                    for(var i = 0 ; i<nowChess.information.length ; i++)
+                    {
+                        EnemyPiece.information[i] = nowChess.information[i];
+                    }
+                    //alert("已读取敌方信息："+EnemyPiece.information);
+
+                    for(var key in map.blue_chesses.children)
+                    {
+                        if(nowChess.information[0] == map.blue_chesses.children[key].information[0])
+                        {
+                            //alert("已寻找到敌方单位所在数据位置："+map.blue_chesses.children[key].information);
+                            var harm = null;
+                            harm = cal_harm();
+                            //alert("造成了伤害："+harm);
+
+                            if (harm == null) 
+                            {
+                                alert("不能击穿装甲");
+                                add_cooling();
+                            }
+                            else 
+                            {
+                                map.blue_chesses.children[key].information[2] -= harm;
+                                if(map.blue_chesses.children[key].information[2]<=0)
+                                {
+                                    map.blue_chesses.children[key].Destory();
+                                    alert(map.blue_chesses.children[key].information[1]+"被摧毁");
+                                }
+                                //distory(Objectdate[key].information[2], Objectdate[key].information[1], Objectdate[key].information[0]);
+                                add_cooling();
+                                //信息显示：变成字符串可以直接交给网页显示
+                                alert(map.blue_chesses.children[key].information[1] + "'s health: " + map.blue_chesses.children[key].information[2]);
+                                alert(ThisPiece.information[1] + " 使用了 " + choose_weapon_obj[1] +
+                                " 对敌方单位 " + map.blue_chesses.children[key].information[1] + " 造成了 " + harm + " 点伤害 ");
+                            }
+                            begin_attack = false;
+                        }
+                    }
+                }
+            }
+            //敌方（blue）
+        }
+    });
+    
+        //点击移动 -- 返回一个数组，记录路径的x(row)与y(col)值,例如：[{x,y},{x,y},{x,y}]
+    window.addEventListener('click',e=>
+    {
+        if(map.curChessCategory == undefined && begin_move == true)
+        {
+            /* for(let key in map.red_chesses.children) //棋子可能正在移动，更新一下棋子位置
+                {
+                    if(map.red_chesses.children[key].information[0] == ThisPiece.information[0])
+                    {
+                        ThisPiece.position.row = map.red_chesses.children[key].position.row;
+                        ThisPiece.position.col = map.red_chesses.children[key].position.colume;
+                        map.red_chesses.children[key].moveStack = [];//先清空当前正在走的路
+                    }
+                } */
+
+            let thisrow = map.curRow;
+            let thiscol = map.curColume;
+            console.log(" 您将从：" + ThisPiece.position.row + ThisPiece.position.col +" 移动到： " + thisrow + thiscol);
+            let way = AStar(ThisPiece.position.row, ThisPiece.position.col, thisrow, thiscol);
+            for(let key in map.red_chesses.children)
+            {
+                if(ThisPiece.information[0] == map.red_chesses.children[key].information[0])
+                {
+                    map.red_chesses.children[key].moveStack = way.reverse();
+                    //console.log(map.red_chesses.children[key]);
+                    //console.log(map.red_chesses.children[key].moveStack);
+                }
+            }
+
+            begin_move = false;
+            return way;
+        }
+
+    });
+
+    //刷新Thispiece的信息
+    function Flash()
+    {
+        if(ThisPiece.position != null)
+        {
+            for(let key in map.red_chesses.children)
+            {
+                if(ThisPiece.information[0] == map.red_chesses.children[key].information[0])
+                {
+                    ThisPiece.position.row = map.red_chesses.children[key].row;
+                    ThisPiece.position.col = map.red_chesses.children[key].colume;
+                    /* console.log("这是测试信息："+ThisPiece.position.row+"|||"+ThisPiece.position.col
+                    +"|||"+map.red_chesses.children[key].row+"|||"+map.red_chesses.children[key].colume) */
+
+                    ThisPiece.information = map.red_chesses.children[key].information;
+
+                    if(ThisPiece.information[2] <= 0 )
+                    {
+                        ThisPiece = {
+                                        "information": [],
+                                        "id": null,
+                                        "weapon_id": [],
+                                        "position":{},
+                                    }
+                    }
+                }
+            }
+        }
+    }
+
+        //增加冷却信息
+    function add_cooling() {
+        var cooling = choose_weapon_obj[5];
+        for (var cooling_key in map.red_chesses.children) {
+            //map.blue_chesses.children == objectdata
+            //red_chess.children:{
+            //    "1":{"information":[....],,,}
+            //    "2":{"information":[....],,,}
+            //          }
+            //information[5]的数值为冷却
+
+            if (map.red_chesses.children[cooling_key].information[0] == ThisPiece.information[0]) 
+            {
+                map.red_chesses.children[cooling_key].information[5] += cooling;
+                console.log(map.red_chesses.children[cooling_key].information[1] + "的冷却时间还有：" + map.red_chesses.children[cooling_key].information[5]);
+            }
+        }
+    }
+        //计算冷却时间
+    function cal_cooling() {
+        for (let key in map.red_chesses.children) {
+            if (map.red_chesses.children[key].information[5] != 0) {
+                map.red_chesses.children[key].information[5] -= 1;
+            }
+            if (map.red_chesses.children[key].information[5] < 0) {
+                map.red_chesses.children[key].information[5] = 0;
+            }
+        }
+    }
+        //AI路径（直接走向夺旗点）
+    function AI_Way_Control() 
+    {
+        console.log("ai启动");
+        let i = 0;
+        //map.blue_chesses.children[key]
+        for(let key in map.blue_chesses.children)
+        {
+            //alert(map.points[i]);
+            let way = AStar(map.blue_chesses.children[key].row,map.blue_chesses.children[key].colume,map.points[i][0],map.points[i][1]);
+            map.blue_chesses.children[key].moveStack = way.reverse();
+            i += 1;
+            //console.log(map.blue_chesses.children[key]);
+        }
+    }
+        //AI攻击（进入范围直接造成随机伤害）
+    function Fake_AI_Attack()
+    {
+        for(let Red_key in map.red_chesses.children)
+        {
+            for(let Blue_key in map.blue_chesses.children)
+            {
+                let ThisRedChessRow = map.red_chesses.children[Red_key].row;
+                let ThisRedChessCol = map.red_chesses.children[Red_key].colume;
+                let ThisBlueChessRow = map.blue_chesses.children[Blue_key].row;
+                let ThisBlueChessCol = map.blue_chesses.children[Blue_key].colume;
+                let Distance = Math.abs(ThisRedChessRow-ThisBlueChessRow) + Math.abs(ThisBlueChessRow-ThisBlueChessCol)
+                /* let a = AStar(ThisRedChessRow,ThisRedChessCol,ThisBlueChessRow,ThisBlueChessCol);
+
+                let Distance = a.length; */
+                if(Distance <= 20)
+                {
+                    
+                    let AI_harm = 0;
+                    AI_harm = Math.floor(Math.random()*3); //随机的伤害
+                    map.red_chesses.children[Red_key].information[2] -= AI_harm;
+                    console.log(map.blue_chesses.children[Blue_key].name + " 在 "+Distance+" 距离上，对" + map.red_chesses.children[Red_key].name + 
+                                "造成了 "+ AI_harm +" 点伤害");
+                    console.log(map.red_chesses.children[Red_key].name + "的剩余血量为："+ map.red_chesses.children[Red_key].information[2]);
+                    if(map.red_chesses.children[Red_key].information[2] <= 0)
+                    {
+                        map.red_chesses.children[Red_key].Destory();
+                    }
+                }
+            }
+        }
+    }
+    
+    
+        //启动ai
+        setTimeout(AI_Way_Control,20000); 
+        //假AI攻击，每10秒一次，伤害随机
+        setInterval(Fake_AI_Attack,10000);
+
+
+        //每秒调用一遍冷却计算
+        setInterval(cal_cooling, 1000);
+        //每1秒调用一次所有单位的移动
+        setInterval(move_function, 1000);
+        //每秒刷新一下ThisPiece,以防位置信息和血量错误
+        setInterval(Flash,1000);
+
+
+        //移动？总之每秒遍历一遍 red_chesses 和 blue_chesses,调用一遍对方的Move（）
+        //若是其中有棋子的路径没空，则进行移动（？）
+        //移动完以后，pop出一个最前面的
+        function move_function()
+        {
+            for(let key in map.red_chesses.children)
+            {
+                map.red_chesses.children[key].move();
+            }
+            for(let key in map.blue_chesses.children)
+            {
+                map.blue_chesses.children[key].move();
+            }
+        }
+
+        
         //地图绘制的函数
         map.Render();
 
@@ -253,12 +579,168 @@
         //     e.preventDefault();
         //     window.focus();
         // });
-    }
-    
+}
 
-</script> 
+    //获取武器函数，并且将它们生成为按钮
+    function getweapon(ThisPiece_weapon_id)
+    {
+    //清空当前武器表单
+    for (var key in This_piece_weapon) {
+            delete This_piece_weapon[key];
+        }
+    for (var key in weaponlist)
+    {
+        for (var i = 0; i < ThisPiece_weapon_id.length; i++) {
+                if (ThisPiece_weapon_id[i] == key) {
+                    This_piece_weapon[key] = weaponlist[key];
+                    console.log(This_piece_weapon);
+
+                    //创建按钮
+                    var weapon_information = document.getElementById("weapon_information");
+                    var choose_weapon_button = document.createElement("button");
+
+                    choose_weapon_button.type = "button"
+                    choose_weapon_button.id = This_piece_weapon[key][0];
+                    choose_weapon_button.innerHTML = "name: " + This_piece_weapon[key][1] + " attack: " + This_piece_weapon[key][2]
+                    choose_weapon_button.onclick = choose_weapon;
+                    weapon_information.appendChild(choose_weapon_button);
+                }
+            }
+        }
+    }
+    //点击武器按钮后激活的函数，将点击的武器对应信息存储在公共变量choose_weapon_obj中
+    function choose_weapon()
+    {
+        choose_weapon_obj = [];
+        for (var key in weaponlist) {
+            if (this.id == weaponlist[key][0]) {
+                choose_weapon_obj = weaponlist[key];
+                alert("you choose weapon: " + choose_weapon_obj[1]);
+                break;
+            }
+        }
+    }
+    //每选取一次棋子，调用一次清除武器列表
+    function ClearElement(ElementId) {
+        var ThisElement = document.getElementById(ElementId);
+        var childs = ThisElement.childNodes;
+
+        for (let i = childs.length - 1; i >= 0; i--) {
+            ThisElement.removeChild(childs[i]);
+        }
+    }
+    //伤害计算公式
+    function cal_harm() 
+    {
+        //EnemyPiece [id name health defense move_speed cooling armour visibility type]
+        //Weapon [id name attack range anti_armoured cooling type] 7项
+        //piece_type:1-轻单位 2-中型单位 3-重型单位
+        //weapon_type:1-轻武器 2-火炮类武器 3-导弹类武器
+        //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
+        //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
+        //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
+        var this_enemy_type = EnemyPiece.information[8];
+        var this_enemy_is_armour = EnemyPiece.information[6];
+        var this_enemy_defense = EnemyPiece.information[3];
+
+        var this_weapon_type = choose_weapon_obj[6];
+        var this_weapon_anti_armour = choose_weapon_obj[4];
+        var this_weapon_attack = choose_weapon_obj[2];
+        //var this_weapon_range = choose_weapon_obj[3];
+        var this_weapon_cooling = choose_weapon_obj[5];
+        var harm_sum = 0;
+
+        console.log("敌人类型：" + this_enemy_type + "敌人是否装甲单位：" + this_enemy_is_armour +
+            "武器类型:" + this_enemy_type + "武器是否能击穿装甲单位：" + this_weapon_anti_armour);
+
+        if (this_enemy_is_armour == true) {
+            if (this_weapon_anti_armour == true) {
+                switch (this_enemy_type) {
+                    case 1: //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
+                        switch (this_weapon_type) {
+                            case 1:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
+                            case 2:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.1));
+                            case 3:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.5));
+
+                        };
+                    case 2: //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
+                        switch (this_weapon_type) {
+                            case 1:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
+                            case 2:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
+                            case 3:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.8));
+                        };
+                    case 3: //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
+                        switch (this_weapon_type) {
+                            case 1:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 2));
+                            case 2:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
+                            case 3:
+                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.6));
+                        };
+                }
+                return harm_sum;
+            } else {
+                return null;
+            }
+        } else {
+            switch (this_enemy_type) {
+                case 1: //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
+                    switch (this_weapon_type) {
+                        case 1:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
+                        case 2:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.1));
+                        case 3:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.5));
+
+                    };
+                case 2: //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
+                    switch (this_weapon_type) {
+                        case 1:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
+                        case 2:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
+                        case 3:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.8));
+                    };
+                case 3: //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
+                    switch (this_weapon_type) {
+                        case 1:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 2));
+                        case 2:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
+                        case 3:
+                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.6));
+                    };
+            }
+            return harm_sum;
+        }
+    }
+    //武器列表
+    var weaponlist = {
+        //[id name attack range anti_armoured cooling type] 7项
+        //weapon_type:1-轻武器 2-火炮类武器 3-导弹类武器
+        "21": [21, "tank_gun_heavy", 4, 11, true, 5, 2],
+        "22": [22, "tank_gun_medium", 3, 10, true, 4, 2],
+        "23": [23, "tank_light_machinegun", 4, 5, false, 5, 1],
+        "24": [24, "infantry_machinegun", 3, 4, false, 5, 1],
+        "25": [25, "missile", 6, 20, true, 15, 3],
+        "26": [26, "infantry_missile", 5, 6, true, 10, 3],
+    }
+</script>
+
+
 
 <script>
-    
+
+
+
 </script>
 </html>

@@ -1,86 +1,129 @@
-function search_Road(start_x, start_y, start_z, end_x, end_y, end_z) {
-    var openlist = [];
-    var closelist = [];
-    var result = [];
-    var result_index;
-    openlist.push({
-        X: start_x,
+function AStar(start_x,start_y,end_x,end_y) {
+    var openList = [],
+        closeList = [],
+        result = [],
+        result_index;
+    
+    var end_offx = end_x - (end_y - (end_y & 1) ) / 2;
+    var end_offz = end_y;
+    var end_offy = -end_offx - end_offz;
+
+    var start_offx = start_x - (start_y - (start_y & 1) ) / 2;
+    var start_offz = start_y;
+    var start_offy = -start_offx - start_offz;
+
+
+    openList.push({
+        x: start_x,
         y: start_y,
-        z: start_z,
         G: 0
     });
 
-    do {
-        var currentpoint = openlist.pop();
-        //pop方法删除数组最后一位 且 返回被删除的值
-        closelist.push(currentpoint);
-        var surroundpoint = surround_point(currentpoint);
-        //寻找该点周围的点，存入临时对象
-        for (var i in surroundpoint) {
-            var item = surroundpoint[i];
+    while (!(result_index = existList({
+            x: end_x,
+            y: end_y
+        }, openList))) 
+    {
+        var currentPoint = openList.pop();
+        closeList.push(currentPoint);
+
+        var sourroundPoint = getSurroundPoint(currentPoint);
+
+        sourroundPoint.map(function(item,index ) {
             if (item.x >= 0 &&
+                item.x < 81 &&
                 item.y >= 0 &&
-                item.x < MAP.row &&
-                item.y < MAP.col &&
-                !exist_list(item, closelist)
-            ) {
-                var g = currentpoint.G + 1; //父对象g+当前g,六角格临近格之间g相同
-                if (!exist_list(item, openlist)) //若不在开启列表中
-                {
-                    item['H'] = Math.abs(end_x - item.x) + Math.abs(end_y - item.y) + Math.abs(end_z - item.z)
+                item.y < 81 &&
+                
+                !existList(item, closeList)) {
+
+                var g = currentPoint.G + 1;
+
+                if (!existList(item, openList)) {
+                    var offx = item.x - (item.y - (item.y & 1) ) / 2;
+                    var offz = item.y;
+                    var offy = -offx - offz;
+
+
+                    item['H'] = (Math.abs(end_offx - offx) + Math.abs(end_offy - offy) + Math.abs(end_offz - offz))/2;
                     item['G'] = g;
-                    item['F'] = item.H + item.G
-                    item['parent'] = currentpoint;
-                    openlist.push(item);
-                } else {
-                    var index = exist_list(item, openlist);
-                    if (g < openlist[index].G) {
-                        openlist[index].parent = currentpoint;
-                        openlist[index].G = g;
-                        openlist[index].F = g + openlist[index].H;
-                    }
+                    item['F'] = item.G + item.H;
+                    item['parent'] = currentPoint;
+                    openList.push(item);
                 }
             }
-        }
-        if (openlist.length == 0) {
+        });
+        if (openList.length === 0) {
+            alert('没有可用路径');
             break;
-        } //若开启列表空了，则说明没路了
-        openlist.sort(sortF);
-    }
-    while (!(result_index = exist_list({ x: end_x, y: end_y }, openlist)));
-
-    if (!result_index) {
-        result = [];
-    } else {
-        var currentobj = openlist[result_index]
-        do {
-            result.unshift({
-                x: currentobj.x,
-                y: currentobj.y
-            });
-            currentobj = currentobj.parent;
         }
-        while (currentobj.x != start_x.x || currentobj.y != start_y);
-        return result;
+        openList.sort(sortF);
+        openList.sort(sortG);
+    };
+
+    if (result_index) {
+        var currentObj = openList[result_index];
+        while (currentObj.x !== start_x || currentObj.y != start_y) 
+        {
+            result.unshift({
+                x: currentObj.x,
+                y: currentObj.y,
+                //F: currentObj.F,
+                //H: currentObj.H,
+                //G: currentObj.G,
+                //Thisparent :currentObj.parent
+            });
+            currentObj = currentObj.parent;
+        };
     }
 
     function sortF(a, b) {
-        return b.f - a.f;
-    } //f值排序
+        return b.F - a.F;
+    }
+    function sortG(a, b){
+        return b.G - a.G;
+    }
+    
+    function getSurroundPoint(currentPoint) {
+        var x = currentPoint.x,
+            y = currentPoint.y;
+            /*
+            周围格子有两种情况？
+            其一：奇数行
+              {-1,0} {-1,+1}
+            {0,-1} x,y {0,+1}
+              {+1,0} {+1,+1}
+            其二：偶数行
+              {-1,-1} {-1,0}
+            {0.-1} x,y {0,+1}
+              {+1,-1} {+1,0}
 
-    function surround_point(currentpoint) {
-        var x = currentpoint.x;
-        var y = currentpoint.y;
-        return [{ x: x - 1, y: y - 1 },
-            { x: x - 1, y: y },
-            { x: x, y: y - 1 },
-            { x: x, y: y + 1 },
-            { x: x + 1, y: y - 1 },
-            { x: x + 1, y: y },
-        ];
-    } //获得周围点坐标
-
-    function exist_list(point, list) { //判断点是否在列表里面
+            （I cost two day finish for that！！！）
+            */
+        if(x%2 == 1)
+        {
+            return [
+                { x: x - 1, y: y },
+                { x: x - 1, y: y + 1 },
+                { x: x, y: y - 1 },
+                { x: x, y: y + 1 },
+                { x: x + 1, y: y },
+                { x: x + 1, y: y + 1 },];
+        }
+        else
+        {
+            return [
+                { x: x - 1, y: y - 1 },
+                { x: x - 1, y: y },
+                { x: x, y: y - 1 },
+                { x: x, y: y + 1 },
+                { x: x + 1, y: y - 1 },
+                { x: x + 1, y: y },];
+        }
+        
+    }
+    
+    function existList(point, list) {
         for (var i in list) {
             if (point.x == list[i].x && point.y == list[i].y) {
                 return i;
@@ -89,5 +132,8 @@ function search_Road(start_x, start_y, start_z, end_x, end_y, end_z) {
         return false;
     }
 
+    return result;
 
-}
+}export{AStar};
+
+//用F值对数组排序

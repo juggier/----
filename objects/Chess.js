@@ -1,4 +1,5 @@
 import * as THREE from '../build/three.module.js';
+import { Hex } from './Hex.js';
 import {Weapon} from "./Weapon.js";
 
 //type:1-小型单位，2-中型单位，3-大型单位
@@ -33,107 +34,102 @@ class Chess extends THREE.Object3D {
         //this.position = [null, null, null, null, null];//[x,y,z,high,point_type]
         this.size = undefined;
 
+        this.moveStack=[];
+
     }
 
     //攻击
-        //伤害计算函数
-    cal_harm(weapon_Information,enemy_Information) {
-        //EnemyPiece [id name health defense move_speed cooling armour visibility type]
-        //Weapon [id name attack range anti_armoured cooling type] 7项
-        //piece_type:1-轻单位 2-中型单位 3-重型单位
-        //weapon_type:1-轻武器 2-火炮类武器 3-导弹类武器
-        //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
-        //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
-        //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
-        let this_enemy_type = enemy_Information.information[8];
-        var this_enemy_is_armour = enemy_Information.information[6];
-        var this_enemy_defense = enemy_Information.information[3];
-
-        var this_weapon_type = weapon_Information[6];
-        var this_weapon_anti_armour = weapon_Information[4];
-        var this_weapon_attack = weapon_Information[2];
-        //var this_weapon_range = choose_weapon_obj[3];
-        var this_weapon_cooling = weapon_Information[5];
-        var harm_sum = 0;
-
-        console.log("敌人类型：" + this_enemy_type + "敌人是否装甲单位：" + this_enemy_is_armour +
-            "武器类型:" + this_enemy_type + "武器是否能击穿装甲单位：" + this_weapon_anti_armour);
-
-        if (this_enemy_is_armour == true) {
-            if (this_weapon_anti_armour == true) {
-                switch (this_enemy_type) {
-                    case 1: //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
-                        switch (this_weapon_type) {
-                            case 1:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
-                            case 2:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.1));
-                            case 3:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.5));
-
-                        };
-                    case 2: //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
-                        switch (this_weapon_type) {
-                            case 1:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
-                            case 2:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
-                            case 3:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.8));
-                        };
-                    case 3: //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
-                        switch (this_weapon_type) {
-                            case 1:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 2));
-                            case 2:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
-                            case 3:
-                                harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.6));
-                        };
-                }
-                return harm_sum;
-            } else {
-                return null;
-            }
-        } else {
-            switch (this_enemy_type) {
-                case 1: //轻单位（1）  ----对轻武器效果（1）：防御力*0.7----对火炮武器效果（2）：防御力*1.1----对导弹类武器效果（3）：防御力*1.5
-                    switch (this_weapon_type) {
-                        case 1:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
-                        case 2:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.1));
-                        case 3:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.5));
-
-                    };
-                case 2: //中型单位（1）----对轻武器效果（1）：防御力*1.2----对火炮武器效果（2）：防御力*0.7----对导弹类武器效果（3）：防御力*0.8
-                    switch (this_weapon_type) {
-                        case 1:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
-                        case 2:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.7));
-                        case 3:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.8));
-                    };
-                case 3: //重型单位（1）----对轻武器效果（1）：防御力*2  ----对火炮武器效果（2）：防御力*1.2----对导弹类武器效果（3）：防御力*0.6
-                    switch (this_weapon_type) {
-                        case 1:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 2));
-                        case 2:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 1.2));
-                        case 3:
-                            harm_sum = Math.round(this_weapon_attack - (this_enemy_defense * 0.6));
-                    };
-            }
-            return harm_sum;
-        }
-    }
     //移动
     //销毁
     Destory(){
         this.visible = false;
     }
+    
+    move() 
+    {
+        if(this.moveStack.length != 0)
+        {
+            //console.log("移动");
+            //console.log(this.moveStack);
+            let nextHex = this.moveStack.pop();
+
+
+            if(this.row % 2 ==1)
+            {
+                if(nextHex.x - this.row == -1 && nextHex.y - this.colume == 0)
+                {
+                    this.position.x -= 8.66;
+                    this.position.y += 15;
+                }
+                if(nextHex.x - this.row == -1 && nextHex.y - this.colume == 1)
+                {
+                    this.position.x += 8.66;
+                    this.position.y += 15;
+                }
+                if(nextHex.x - this.row == 0 && nextHex.y - this.colume == -1)
+                {
+                    this.position.x -= 17.32;
+                }
+                if(nextHex.x - this.row == 0 && nextHex.y - this.colume == 1)
+                {
+                    this.position.x += 17.32;
+                }
+                if(nextHex.x - this.row == 1 && nextHex.y - this.colume == 0)
+                {
+                    this.position.x -= 8.66;
+                    this.position.y -= 15;
+                }
+                if(nextHex.x - this.row == 1 && nextHex.y - this.colume == 1)
+                {
+                    this.position.x += 8.66;
+                    this.position.y -= 15;
+                }
+            }
+            else
+            {
+                if(nextHex.x - this.row == -1 && nextHex.y - this.colume == -1)
+                {
+                    this.position.x -= 8.66;
+                    this.position.y += 15;
+                }
+                if(nextHex.x - this.row == -1 && nextHex.y - this.colume == 0)
+                {
+                    this.position.x += 8.66;
+                    this.position.y += 15;
+                }
+                if(nextHex.x - this.row == 0 && nextHex.y - this.colume == -1)
+                {
+                    this.position.x -= 17.32;
+                }
+                if(nextHex.x - this.row == 0 && nextHex.y - this.colume == 1)
+                {
+                    this.position.x += 17.32;
+                }
+                if(nextHex.x - this.row == 1 && nextHex.y - this.colume == -1)
+                {
+                    this.position.x -= 8.66;
+                    this.position.y -= 15;
+                }
+                if(nextHex.x - this.row == 1 && nextHex.y - this.colume == 0)
+                {
+                    this.position.x += 8.66;
+                    this.position.y -= 15;
+                }
+            }
+
+            //改变行列
+            this.row = nextHex.x;
+            this.colume = nextHex.y;
+
+            //改变位置
+            //this.position.x += move_x;
+            //this.position.y += move_y;
+            //this.position.z += move_z;
+            console.log(this.name + "移动到了" + this.row +" "+ this.colume);
+            console.log("棋子的移动路线："+this.moveStack);
+        }
+    }
+
 }
 
 class Tank extends Chess{

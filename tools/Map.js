@@ -35,9 +35,9 @@ function Map(map, window) {
     //场景模型集合：
     this.hex_map = new THREE.Group();
     this.hex_map.name = 'hex_map';
-    this.red_chesses = new THREE.Group();
+    this.red_chesses = new THREE.Group();//红色棋子合集
     this.red_chesses.name = 'red_chesses';
-    this.blue_chesses = new THREE.Group();
+    this.blue_chesses = new THREE.Group();//蓝色棋子合集
     this.blue_chesses.name = 'blue_chesses';
 
     this.canvas = document.querySelector(map);
@@ -74,14 +74,9 @@ function Map(map, window) {
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
     this.pickHelper.clearPickPosition();
 
-<<<<<<< HEAD
-    this.curRow, this.curColume, this.curChess, this.curElevation, this.curHex, this.speed;
-
-=======
     this.curRow, this.curColume, this.curElevation, this.speed;
     this.curHex, this.curHexCategory, this.curChess, this.curChessCategory;
     
->>>>>>> 8dd70b5a98be52d6a0d75caff6ce9e4a2f52e73e
 
     let scope = this;
 
@@ -892,22 +887,18 @@ function Map(map, window) {
 
             }
             
-            console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
+            //console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
             //console.log(scope.curHex);
             //console.log(scope.curChess);
 
             document.getElementById("bottom-left").innerHTML = "x坐标： "+scope.curRow + " " +"y坐标： "+scope.curColume +"<br>"+"当前高程："+scope.curElevation;
-<<<<<<< HEAD
             //console.log(scope.curChess);
-            
-            getmap(this.hex_map.children);
-=======
 
->>>>>>> 8dd70b5a98be52d6a0d75caff6ce9e4a2f52e73e
         }
         else 
             console.log('pick none');
     }
+
 }
 export{Map};
 
@@ -920,116 +911,6 @@ export{Map};
     return [x, y, z];
 } */
 
-var map = {};
-
-function getmap(this_map)
-{
-    for(var i= 0;i<this_map.length;i++)
-    {
-        var key = i;
-        var col = this_map[i].colume;
-        var row = this_map[i].row;
-
-        var x = row - (col - (col & 1)) / 2;
-        var z = col;
-        var y = -x - z;
-        map[key] = [x,y,z];
-    }
-    console.log(map);
-}
 
 
 
-
-function search_Road(start_x, start_y, start_z, end_x, end_y, end_z) {
-
-    var openlist = [];
-    var closelist = [];
-    var result = [];
-    var result_index;
-    openlist.push({
-        X: start_x,
-        y: start_y,
-        z: start_z,
-        G: 0
-    });
-
-    do {
-        var currentpoint = openlist.pop();
-        //pop方法删除数组最后一位 且 返回被删除的值
-        closelist.push(currentpoint);
-        var surroundpoint = surround_point(currentpoint);
-        //寻找该点周围的点，存入临时对象
-        for (var i in surroundpoint) {
-            var item = surroundpoint[i];
-            if (item.x >= 0 &&
-                item.y >= 0 &&
-                item.x < MAP.row &&
-                item.y < MAP.col &&
-                !exist_list(item, closelist)
-            ) {
-                var g = currentpoint.G + 1; //父对象g+当前g,六角格临近格之间g相同
-                if (!exist_list(item, openlist)) //若不在开启列表中
-                {
-                    item['H'] = Math.abs(end_x - item.x) + Math.abs(end_y - item.y) + Math.abs(end_z - item.z)
-                    item['G'] = g;
-                    item['F'] = item.H + item.G
-                    item['parent'] = currentpoint;
-                    openlist.push(item);
-                } else {
-                    var index = exist_list(item, openlist);
-                    if (g < openlist[index].G) {
-                        openlist[index].parent = currentpoint;
-                        openlist[index].G = g;
-                        openlist[index].F = g + openlist[index].H;
-                    }
-                }
-            }
-        }
-        if (openlist.length == 0) {
-            break;
-        } //若开启列表空了，则说明没路了
-        openlist.sort(sortF);
-    }
-    while (!(result_index = exist_list({ x: end_x, y: end_y }, openlist)));
-
-    if (!result_index) {
-        result = [];
-    } else {
-        var currentobj = openlist[result_index]
-        do {
-            result.unshift({
-                x: currentobj.x,
-                y: currentobj.y
-            });
-            currentobj = currentobj.parent;
-        }
-        while (currentobj.x != start_x.x || currentobj.y != start_y);
-        return result;
-    }
-
-    function sortF(a, b) {
-        return b.f - a.f;
-    } //f值排序
-
-    function surround_point(currentpoint) {
-        var x = currentpoint.x;
-        var y = currentpoint.y;
-        return [{ x: x - 1, y: y - 1 },
-            { x: x - 1, y: y },
-            { x: x, y: y - 1 },
-            { x: x, y: y + 1 },
-            { x: x + 1, y: y - 1 },
-            { x: x + 1, y: y },
-        ];
-    } //获得周围点坐标
-
-    function exist_list(point, list) { //判断点是否在列表里面
-        for (var i in list) {
-            if (point.x == list[i].x && point.y == list[i].y) {
-                return i;
-            }
-        }
-        return false;
-    }
-}
