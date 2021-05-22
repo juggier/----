@@ -35,15 +35,9 @@ function Map(map, window) {
     //场景模型集合：
     this.hex_map = new THREE.Group();//地图的所有实例
     this.hex_map.name = 'hex_map';
-<<<<<<< HEAD
-    this.red_chesses = new THREE.Group();//红色棋子合集
-    this.red_chesses.name = 'red_chesses';
-    this.blue_chesses = new THREE.Group();//蓝色棋子合集
-=======
     this.red_chesses = new THREE.Group();//所有红方棋子的实例
     this.red_chesses.name = 'red_chesses';
     this.blue_chesses = new THREE.Group();//所有蓝方棋子的实例
->>>>>>> 3b423002beb1ae880c76796397990f7400c17586
     this.blue_chesses.name = 'blue_chesses';
 
     this.canvas = document.querySelector(map);
@@ -127,7 +121,6 @@ function Map(map, window) {
 
         //绘制
         Draw(heights);
-        //console.log(heights);
         DrawObjects(scope.points, 'point');
         DrawChess();
         CreateHouses();
@@ -903,15 +896,9 @@ function Map(map, window) {
 
             }
             
-<<<<<<< HEAD
-            //console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
-            //console.log(scope.curHex);
-            //console.log(scope.curChess);
-=======
-            console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
-            console.log(scope.curHex);
-            console.log(scope.curChess);
->>>>>>> 3b423002beb1ae880c76796397990f7400c17586
+            // console.log(scope.curRow, scope.curColume, scope.curElevation, scope.curHexCategory,scope.curChessCategory);
+            // console.log(scope.curHex);
+            // console.log(scope.curChess);
 
             document.getElementById("bottom-left").innerHTML = "x坐标： "+scope.curRow + " " +"y坐标： "+scope.curColume +"<br>"+"当前高程："+scope.curElevation;
             //console.log(scope.curChess);
