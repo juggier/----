@@ -374,7 +374,6 @@
             const reader = new FileReader();
             reader.readAsBinaryString("./Mapheight.txt");
             reader.onload = () => {
-
                 const result = reader.result;
                 map.GenerateMap(result);
             }
