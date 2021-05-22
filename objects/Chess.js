@@ -1,15 +1,15 @@
 import * as THREE from '../build/three.module.js';
-import { Hex } from './Hex.js';
-import {Weapon} from "./Weapon.js";
 
 //type:1-小型单位，2-中型单位，3-大型单位
 //建议直接获取information数组以获取信息
 //单位信息整合数组："information"：[id,name,health,defense,move_speed,cooling,armour,visibility,weapon_id,size]
 class Chess extends THREE.Object3D {
 
-    constructor() {
+    constructor(map){
 
         super();
+        this.map = map;
+        this.changeEvent = { type: 'change' };
 
         this.materials = []//存储左右两个材质
 
@@ -35,7 +35,8 @@ class Chess extends THREE.Object3D {
         this.size = undefined;
 
         this.moveStack=[];
-
+        this.speedTemp = 0;
+        this.nextHex = null;
     }
 
     //攻击
@@ -45,7 +46,128 @@ class Chess extends THREE.Object3D {
         this.visible = false;
     }
     
+    GetDomElement(){
+        return this.domElment;
+    }
+
     move() 
+    {
+        this.map.getrequest();
+
+        this.speedLelf = Math.round((1/this.move_speed) * 200);//速度剩余（？），例如要走10s一格，则speedLeft = 10    //////--(Math.round(200 * (1/this.move_speed)))--//////
+
+        if(this.nextHex == null && this.moveStack.length != 0)//若有路线且下一步无格子，则pop一个为下一步的格子
+        {
+            this.nextHex = this.moveStack.pop();
+            //console.log(this.move_speed + "||" + this.speedLelf);
+        }
+        else if( this.nextHex != null)
+        {
+            if(this.speedTemp < this.speedLelf)
+            {
+
+                if(this.row % 2 ==1)//改变位置
+                {
+                    if(this.nextHex.x - this.row == -1 && this.nextHex.y - this.colume == 0)
+                    {
+                        this.position.x -= 8.66/this.speedLelf;
+                        this.position.y += 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == -1 && this.nextHex.y - this.colume == 1)
+                    {
+                        this.position.x += 8.66/this.speedLelf;
+                        this.position.y += 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 0 && this.nextHex.y - this.colume == -1)
+                    {
+                        this.position.x -= 17.32/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 0 && this.nextHex.y - this.colume == 1)
+                    {
+                        this.position.x += 17.32/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 1 && this.nextHex.y - this.colume == 0)
+                    {
+                        this.position.x -= 8.66/this.speedLelf;
+                        this.position.y -= 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 1 && this.nextHex.y - this.colume == 1)
+                    {
+                        this.position.x += 8.66/this.speedLelf;
+                        this.position.y -= 15/this.speedLelf;
+                    }
+                }
+                else//改变位置
+                {
+                    if(this.nextHex.x - this.row == -1 && this.nextHex.y - this.colume == -1)
+                    {
+                        this.position.x -= 8.66/this.speedLelf;
+                        this.position.y += 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == -1 && this.nextHex.y - this.colume == 0)
+                    {
+                        this.position.x += 8.66/this.speedLelf;
+                        this.position.y += 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 0 && this.nextHex.y - this.colume == -1)
+                    {
+                        this.position.x -= 17.32/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 0 && this.nextHex.y - this.colume == 1)
+                    {
+                        this.position.x += 17.32/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 1 && this.nextHex.y - this.colume == -1)
+                    {
+                        this.position.x -= 8.66/this.speedLelf;
+                        this.position.y -= 15/this.speedLelf;
+                    }
+                    if(this.nextHex.x - this.row == 1 && this.nextHex.y - this.colume == 0)
+                    {
+                        this.position.x += 8.66/this.speedLelf;
+                        this.position.y -= 15/this.speedLelf;
+                    }
+                }
+
+                this.speedTemp += 1;
+            }
+            else
+            {
+                //改变行列
+                this.row = this.nextHex.x;
+                this.colume = this.nextHex.y;
+                //console.log(this.name + "移动到了" + this.row +" "+ this.colume);
+
+                //重置单格移动计时器
+                this.speedTemp = 0;
+                //重置下一格
+                this.nextHex = null;
+            }
+        }
+    }
+
+    ThisToJson()
+    {
+        return{
+            "information" : this.information,
+            "No" : this.No,
+            "name" : this.name,
+            "health" : this.health,
+            "defense" : this.defense,
+            "move_speed" : this.move_speed,
+            "cooling" : this.cooling,
+            "armour" : this.armour,
+            "visibility" : this.visibility,
+            "weapon_id" : this.weapon_id,
+
+            "visible" :this.visible,
+            "moveStack" : this.moveStack,
+            "speedTemp" : this.speedTemp,
+            "nextHex" : this.nextHex,
+        }
+    }
+
+    /* move() 
     {
         if(this.moveStack.length != 0)
         {
@@ -126,17 +248,17 @@ class Chess extends THREE.Object3D {
             //this.position.y += move_y;
             //this.position.z += move_z;
             console.log(this.name + "移动到了" + this.row +" "+ this.colume);
-            console.log("棋子的移动路线："+this.moveStack);
+            //console.log("棋子的移动路线："+this.moveStack);
         }
-    }
+    } */
 
 }
 
 class Tank extends Chess{
 
 
-    constructor(id,color,pos,elevation,row,colume){
-        super();
+    constructor(map,id,color,pos,elevation,row,colume){
+        super(map);
         this.type = 'Chess';
         this.category = 'Tank';
         this.pos = pos;
@@ -151,7 +273,7 @@ class Tank extends Chess{
             this.name = "tank_" + color;
             this.health = 8;
             this.defense = 3;
-            this.move_speed = 10;
+            this.move_speed = 9;
             this.cooling = 0;
             this.armour = true;
             this.visibility = 9;
@@ -165,7 +287,7 @@ class Tank extends Chess{
             this.name = "tank_" + color;
             this.health = 12;
             this.defense = 2;
-            this.move_speed = 8;
+            this.move_speed = 9;
             this.cooling = 0;
             this.armour = true;
             this.visibility = 11;
@@ -178,8 +300,8 @@ class Tank extends Chess{
 }
 
 class ArmouredVehicle extends Chess {
-    constructor(id, color, pos, elevation, row, colume) {
-        super();
+    constructor(map,id, color, pos, elevation, row, colume) {
+        super(map);
         this.type = 'Chess';
         this.category = 'ArmouredVehicle'
         this.pos = pos;
@@ -221,8 +343,8 @@ class ArmouredVehicle extends Chess {
 }
 
 class Infantry extends Chess {
-    constructor(id, color, pos, elevation, row, colume) {
-        super();
+    constructor(map,id, color, pos, elevation, row, colume) {
+        super(map);
         this.type = 'Chess';
         this.category = 'Infantry';
         this.pos = pos;
@@ -236,7 +358,7 @@ class Infantry extends Chess {
         this.name = "infantry_" + color;
         this.health = 5;
         this.defense = 1;
-        this.move_speed = 3;
+        this.move_speed = 7;
         this.cooling = 0;
         this.armour = false;
         this.visibility = 3;

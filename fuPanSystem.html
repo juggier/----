@@ -5,18 +5,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>兵棋推演复盘系统</title>
-    <link rel="stylesheet" href="../css/reset.css">
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/fuPanSystem.css">
-    <script type="text/javascript" src="../js/tool.js"></script>
-    <script type="text/javascript" src="../js/fuPanSystem.js"></script>
-    
+    <link rel="stylesheet" href="../-----/css/reset.css">
+    <link rel="stylesheet" href="../-----/css/base.css">
+    <link rel="stylesheet" href="../-----/css/fuPanSystem.css">
+    <script type="text/javascript" src="../-----/js/tool.js"></script>
+    <script type="text/javascript" src="../-----/js/fuPanSystem.js"></script>
+
+    <script type="text/javascript" src="../-----/js/Ai_Control.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
+
+    <style>
+        #Map{
+            position: absolute;
+            z-index: 0;
+        }
+    </style>
+
 </head>
 <body>
 
-
-    <!-- 顶部导航栏 -->
-    <div class="topbar">
+    <canvas id = "Map"></canvas>
+    <div id="window-map" class="window-map">
+        <!-- 顶部导航栏 -->
+        <div class="topbar">
         <!-- 左上角logo -->
         <div class="logo">
             <!-- <h1>兵棋推演复盘系统</h1> -->
@@ -32,7 +43,7 @@
                 <li>
                     
                     <a class="onloadButton" href="javascript:;">
-                        <img src="../img/复盘右上角组件/上传.png" alt="上传">
+                        <img src="../-----/img/复盘右上角组件/上传.png" alt="上传">
                     </a>
 
                     <div id = "container">
@@ -40,13 +51,12 @@
                         <input type="radio" class="input_radio" name="inputType" id="inputType" value="2">导入地图 <br>
                         <input id="input" type="file">
                         <input id ="export" type="button" value="导出地图">
-                        <canvas id = "Map"></canvas>
                         <div id = "labels"></div>
                     </div>
                 </li>
                 <li>
                     <a class="direct" href="javascript:;">
-                        <img src="../img/复盘右上角组件/导演.png" alt="导演">
+                        <img src="../-----/img/复盘右上角组件/导演.png" alt="导演">
                         <!-- 设置弹出层 -->
                         <div class="view">
                             <button class="red">
@@ -62,16 +72,17 @@
                 </li>
                 <li>
                     <a href="javascript:;">
-                        <img src="../img/右上角组件/模型.png" alt="模型/军标">
+                        <img src="../-----/img/右上角组件/模型.png" alt="模型/军标">
                     </a>
                 </li>
                 <li>
                     <a href="javascript:;">
-                        <img src="../img/右上角组件/兵力.png" alt="兵力">
+                        <img src="../-----/img/右上角组件/兵力.png" alt="兵力">
                     </a>
                 </li>
             </ul>
         </div>
+    </div>
 
     </div>
 
@@ -112,22 +123,34 @@
         </div>
         <div class="pannal">
             <h2>夺空点得分</h2>
-            <div>
-                <h3 class="blue-s">123</h3>
-                <h3 class="red-s">123</h3>
-            </div>
-
-            <h2>剩余算子得分</h2>
-            <div></div>
-
-            <h2>战斗得分</h2>
-            <div></div>
-
-            <h2>净胜分</h2>
-            <div></div>
-
-            <h2>总得分</h2>
-            <div></div>
+                <div>
+                    <h3 class="blue-s" id="PointScore_blue">123</h3>
+                    <h3 class="red-s" id="PointScore_red">123</h3>
+                </div>
+    
+                <h2>剩余算子得分</h2>
+                <div>
+                    <h3 class="blue-s" id="LeftChessScore_blue">123</h3>
+                    <h3 class="red-s" id="LeftChessScore_red">123</h3>
+                </div>
+    
+                <h2>战斗得分</h2>
+                <div>
+                    <h3 class="blue-s" id="BattleScore_blue">123</h3>
+                    <h3 class="red-s" id="BattleScore_red">123</h3>
+                </div>
+    
+                <h2>净胜分</h2>
+                <div>
+                    <h3 class="blue-s" id="DScore_blue">123</h3>
+                    <h3 class="red-s" id="DScore_red">123</h3>
+                </div>
+    
+                <h2>总得分</h2>
+                <div>
+                    <h3 class="blue-s" id="SumScore_blue">123</h3>
+                    <h3 class="red-s" id="SumScore_red">123</h3>
+                </div>
 
         </div>
     </div>
@@ -136,9 +159,96 @@
         <div class="bottom-wrapper">
             
             <!-- 底部左侧 -->
-            <div class="bottom-left">xy</div>
+            <div class="bottom-left"> <font id="bottom-left" size ="4" color = "#FFFFFF" > xy </font></div>
 
         </div>
-    <script type="module" src="../js/map.js"></script>
+    <script type="module">
+
+    import { Map } from '../-----/tools/Map.js';
+    import { AStar } from '../-----/js/AStar.js';
+
+
+    
+    
+    main()
+
+    function main()
+    {
+        //新建Map实例
+        var map = new Map("#Map",window);
+        console.log(map);
+
+        //判断类型
+        let type = 1;
+        const radio = document.getElementsByName("inputType");
+        radio[0].onclick = function(){
+
+            type = radio[0].value;
+
+        };
+        radio[1].onclick = function () {
+
+            type = radio[1].value;
+
+        };
+        
+        //生成地图或者导入地图
+        const input = document.querySelector('input[type=file]');
+        input.addEventListener('change',()=>{
+
+            //map.GenerateMap(result);
+
+            const reader = new FileReader();
+            reader.readAsBinaryString(input.files[0]);
+            reader.onload = ()=>{
+
+                const result = reader.result;
+
+                if(type == 1){
+                    //生成地图的函数
+                    map.GenerateMap(result);
+
+                }else if(type == 2){
+                    //导入地图的函数
+                    map.InputMap(result);
+                }
+            }
+            console.log("开始游戏");
+            //导入地图后五秒才启动ai
+            /* setTimeout(AI_Way_Control,5000); 
+            Begin_Game = true; */
+
+        },false);
+
+        //按钮事件
+        const botton = document.querySelector('#export');
+        botton.addEventListener('click', e =>{
+            map.mapToJson(botton,e) //导出地图的函数
+            },false);
+
+        //按钮事件
+        const botton2 = document.querySelector('#generate');
+        botton2.addEventListener('click', e => {
+            const reader = new FileReader();
+            reader.readAsBinaryString("./Mapheight.txt");
+            reader.onload = () => {
+
+                const result = reader.result;
+                map.GenerateMap(result);
+            }
+            
+
+        }, false);
+    }
+
+        //地图绘制的函数
+    map.Render();
+
+    //window.addEventListener('keydown', (e) => {
+    //     e.preventDefault();
+    //     window.focus();
+    // });
+
+    </script>
 </body>
 </html>

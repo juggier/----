@@ -269,7 +269,6 @@
     top: 10px;
     color: white;
 }
-
 .red-s{
     position: absolute;
     left: 20px;
@@ -309,11 +308,17 @@
 /* 武器列表 */
 #weapon_information{
     position: relative;
-    left: 1280px;
+    left: 1080px;
     top: 80px;
     width: 100px;
     height: 50px;
     background-color: rgba(0, 0, 0, 0.199);
+}
+/* 保存数据按钮 */
+#exportInfor{
+    position: relative;
+    left: 680px;
+    top: 80px;
 }
 
 .bottom-right ul{

@@ -48,14 +48,14 @@ function PickHelper(canvas,domElement,camera){
         };
     }
 
-    this.clearPickPosition = function(){
+    function clearPickPosition(){
         scope.pickPosition.x = -100000;
         scope.pickPosition.y = -100000;
     }
 
     scope.domElement.addEventListener('pointermove', setPickPosition);
-    scope.domElement.addEventListener('pointout', scope.clearPickPosition);
-    scope.domElement.addEventListener('pointleave', scope.clearPickPosition);
+    scope.domElement.addEventListener('pointout', clearPickPosition);
+    scope.domElement.addEventListener('pointleave', clearPickPosition);
 
     scope.domElement.addEventListener('touchstart', (event) => {
         // prevent the window from scrolling
@@ -67,7 +67,7 @@ function PickHelper(canvas,domElement,camera){
         setPickPosition(event.touches[0]);
     });
 
-    scope.domElement.addEventListener('touchend', scope.clearPickPosition);
+    scope.domElement.addEventListener('touchend',clearPickPosition);
 }
 PickHelper.prototype = Object.create(THREE.EventDispatcher.prototype);
 PickHelper.prototype.constructor = PickHelper;

@@ -1,9 +1,9 @@
 import * as THREE from '../build/three.module.js';
-import { CameraControl } from './CameraControl.js';
-import { LOD } from './LOD.js';
+import { CameraControl } from '../tools/CameraControl.js';
+import { LOD } from '../tools/LOD.js';
 import { Hex } from '../objects/Hex.js';
 import { Tank, ArmouredVehicle, Infantry } from '../objects/Chess.js';
-import { PickHelper } from './PickHelper.js';
+import { PickHelper } from '../tools/PickHelper.js';
 
 function Map(map, window) {
 
@@ -72,7 +72,6 @@ function Map(map, window) {
 
         //UI交互属性
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
-    this.pickHelper.clearPickPosition();
 
     this.curRow, this.curColume, this.curElevation, this.speed;
     this.curHex, this.curHexCategory, this.curChess, this.curChessCategory;
@@ -200,19 +199,19 @@ function Map(map, window) {
 
             case 'point':
                 material = new THREE.MeshBasicMaterial({
-                    map: loader.load('./textures/points1.png'),
+                    map: loader.load('textures/points.png'),
                     transparent: true
                 });
                 break;
             case 'house':
                 material = new THREE.MeshBasicMaterial({
-                    map: loader.load('./textures/house1.png'),
+                    map: loader.load('textures/house1.png'),
                     transparent: true
                 });
                 break;
             case 'tree':
                 material = new THREE.MeshBasicMaterial({
-                    map: loader.load('./textures/tree2.png'),
+                    map: loader.load('textures/tree2.png'),
                     transparent: true
                 });
                 break;
@@ -247,8 +246,11 @@ function Map(map, window) {
             }
 
             const detail_objectmesh = new THREE.Mesh(objectGeometries[0], material);
+            detail_objectmesh.position.z = -1;
             const detail_objectmesh2 = new THREE.Mesh(objectGeometries[1], material);
+            detail_objectmesh2.position.z = -1;
             const simpler_objectmesh = new THREE.Mesh(objectGeometries[2], material);
+            simpler_objectmesh.position.z = -1;
 
             const objectMesh = new LOD();
             objectMesh.name = 'ObjectLOD';
@@ -276,44 +278,44 @@ function Map(map, window) {
         const loader = new THREE.TextureLoader();
             //红色坦克
         const r_tank_material_l = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/red0-0.png'),
+            map: loader.load('textures/red0-0.png'),
             transparent: true, side: THREE.DoubleSide
         });
         const r_tank_material_r = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/red0-180.png'),
+            map: loader.load('textures/red0-180.png'),
             transparent: true
         });
         const r_tank_materials = [r_tank_material_l,r_tank_material_r];
 
             //红色装甲
         const r_armoured_vehicle_material_l = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/red1-0.png'),
+            map: loader.load('textures/red1-0.png'),
             transparent: true, side: THREE.DoubleSide
         });
         const r_armoured_vehicle_material_r = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/red1-180.png'),
+            map: loader.load('textures/red1-180.png'),
             transparent: true
         });
         const r_armoured_vehicle_materials = [r_armoured_vehicle_material_l, r_armoured_vehicle_material_r];
 
             //蓝色坦克
         const b_tank_material_l = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/blue0-0.png'),
+            map: loader.load('textures/blue0-0.png'),
             transparent: true
         });
         const b_tank_material_r = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/blue0-180.png'),
+            map: loader.load('textures/blue0-180.png'),
             transparent: true
         });
         const b_tank_materials = [b_tank_material_l, b_tank_material_r];
 
             //蓝色步兵
         const b_infantry_material_l = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/blue2-0.png'),
+            map: loader.load('textures/blue2-0.png'),
             transparent: true
         });
         const b_infantry_material_r = new THREE.MeshBasicMaterial({
-            map: loader.load('./textures/blue2-180.png'),
+            map: loader.load('textures/blue2-180.png'),
             transparent: true
         });
         const b_infantry_materials = [b_infantry_material_l, b_infantry_material_r];
@@ -336,8 +338,11 @@ function Map(map, window) {
                 let hex = scope.hex_map.children[_row * 81 + _colume];
 
                 const detail_chessmesh = new THREE.Mesh(chessGeometries[0], red_materials[i][0]);
+                //detail_chessmesh.position.z = 1;
                 const detail_chessmesh2 = new THREE.Mesh(chessGeometries[1], red_materials[i][0]);
+                //detail_chessmesh2.position.z = 1;
                 const simpler_chessmesh = new THREE.Mesh(chessGeometries[2], red_materials[i][0]);
+                //simpler_chessmesh.position.z = 1;
 
 
                 const chessMesh = new LOD();
@@ -351,10 +356,10 @@ function Map(map, window) {
                 let redChess;
                 switch(i){
                     case 0:
-                        redChess = new Tank(11, 'red',hex.pos, hex.elevation, hex.row, hex.colume);
+                        redChess = new Tank(scope, 11, 'red',hex.pos, hex.elevation, hex.row, hex.colume);
                         break;
                     case 1:
-                        redChess = new ArmouredVehicle(13, 'red', hex.pos, hex.elevation, hex.row, hex.colume);
+                        redChess = new ArmouredVehicle(scope, 13, 'red', hex.pos, hex.elevation, hex.row, hex.colume);
                         break;
                 }
                 
@@ -386,10 +391,10 @@ function Map(map, window) {
                 let blueChess;
                 switch (i) {
                     case 0:
-                        blueChess = new Tank(12, 'blue', hex.pos, hex.elevation, hex.row, hex.colume);
+                        blueChess = new Tank(scope, 12, 'blue', hex.pos, hex.elevation, hex.row, hex.colume);
                         break;
                     case 1:
-                        blueChess = new Infantry(15, 'blue', hex.pos, hex.elevation, hex.row, hex.colume);
+                        blueChess = new Infantry(scope, 15, 'blue', hex.pos, hex.elevation, hex.row, hex.colume);
                         break;
                 }
 
@@ -455,8 +460,8 @@ function Map(map, window) {
                 //位移
                 hexmesh.add(hexLine);
                 hexmesh.rotateZ(-Math.PI / 2);
-                hexmesh.position.x = width_offset * _row + (_colume % 2 == 0) * -width_offset * 0.5;
-                hexmesh.position.y = -height_offset * _colume;
+                hexmesh.position.x = -scope.row * radius / 2 + width_offset * _row + (_colume % 2 == 0) * -width_offset * 0.5;
+                hexmesh.position.y = scope.colume * radius / 2 + -height_offset * _colume;
                 hexmesh.updateWorldMatrix(true, true);
 
                 //数据存储
@@ -473,10 +478,9 @@ function Map(map, window) {
                 scope.hex_map.add(hex);
             }
         }
-
         scope.camera.lookAt(scope.hex_map);
     }
-
+    
     function CreateMapTexture(size, position, elevation, detail) {
 
         const text_ctx = document.createElement('canvas').getContext('2d');
@@ -751,7 +755,13 @@ function Map(map, window) {
 
     }
 
-    function requestRenderIfNotRequested() {
+    this.getrequest = function(){
+
+        requestRenderIfNotRequested();
+
+    }
+
+    function requestRenderIfNotRequested(){
         
         if (!scope.renderRequested) {
 
