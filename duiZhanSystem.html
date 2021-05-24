@@ -48,11 +48,6 @@
                         </a>
     
                         <div id = "container">
-                            <input type="radio" class="input_radio" name="inputType" id="inputType" value="1" checked>生成地图 <br>
-                            <input type="radio" class="input_radio" name="inputType" id="inputType" value="2">导入地图 <br>
-                            <input id="input" type="file">
-                            <input id ="export" type="button" value="导出地图">
-                            <input id="generate" type="button" value="生成地图">
                             <div id = "labels"></div>
                         </div>
                     </li>
@@ -68,7 +63,7 @@
                     </li>
                     <li>
                         <a href="javascript:;">
-                            <img src="../-----/img/右上角组件/开始.png" alt="开始">
+                            <img id="generate" src="../-----/img/右上角组件/开始.png" alt="开始">
                         </a>
                     </li>
                 </ul>
@@ -318,66 +313,29 @@
             }
         }
         //--------------
-
-
-        //判断类型
-        let type = 1;
-        const radio = document.getElementsByName("inputType");
-        radio[0].onclick = function(){
-
-            type = radio[0].value;
-
-        };
-        radio[1].onclick = function () {
-
-            type = radio[1].value;
-
-        };
-        
-        //生成地图或者导入地图
-        const input = document.querySelector('input[type=file]');
-        input.addEventListener('change',()=>{
-
-            //map.GenerateMap(result);
-
-            const reader = new FileReader();
-            reader.readAsBinaryString(input.files[0]);
-            reader.onload = ()=>{
-
-                const result = reader.result;
-
-                if(type == 1){
-                    //生成地图的函数
-                    map.GenerateMap(result);
-
-                }else if(type == 2){
-                    //导入地图的函数
-                    map.InputMap(result);
-                }
-            }
-            console.log("开始游戏");
-            //导入地图后五秒才启动ai
-            setTimeout(AI_Way_Control,5000); 
-            Begin_Game = true;
-
-        },false);
-
-        //按钮事件
-        const botton = document.querySelector('#export');
-        botton.addEventListener('click', e =>{
-            map.mapToJson(botton,e) //导出地图的函数
-            },false);
-
         //按钮事件
         const botton2 = document.querySelector('#generate');
         botton2.addEventListener('click', e => {
-            const reader = new FileReader();
-            reader.readAsBinaryString("./Mapheight.txt");
-            reader.onload = () => {
-                const result = reader.result;
-                map.GenerateMap(result);
-            }
-            
+
+                let xmlhttp = new XMLHttpRequest;
+                
+                xmlhttp.onreadystatechange = function(){
+                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                        let return_value = xmlhttp.responseText;
+                        console.log(return_value);
+                        map.GenerateMap(return_value);
+
+                        console.log("开始游戏");
+                        //导入地图后五秒才启动ai
+                        setTimeout(AI_Way_Control, 5000);
+                        Begin_Game = true;
+                    }
+                }
+
+                xmlhttp.open("post", "http://10.251.239.17:8889/-----/datas/Mapheight.txt", true);
+                xmlhttp.send();
+
+                
 
         }, false);
 
