@@ -22,6 +22,7 @@ function Map(map, window) {
 
         //高程集合：low_heights < 100 , middle_heights < 200
     let low_heights = [],middle_heights = [];
+    this.heights = [];
 
         //地图集合：丛林，居民地，夺控点
     this.jungles = [], this.houses = [], this.points = [[46, 47], [46, 48], [47, 47]];
@@ -58,18 +59,6 @@ function Map(map, window) {
     const ambient = new THREE.AmbientLight(0x444444);
     this.scene.add(ambient);
 
-    //test
-    // const gmaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    // const geo = new THREE.BoxGeometry(50,50,50);
-    // const cube = new THREE.Mesh(geo, gmaterial);
-    // cube.position.z = -50;
-    // const gro = new THREE.Group();
-    // gro.add(cube);
-    // this.scene.add(gro);
-    // console.log(this.scene);
-
-
-
         //UI交互属性
     this.pickHelper = new PickHelper(this.canvas, this.renderer.domElement,this.camera);
 
@@ -87,8 +76,6 @@ function Map(map, window) {
     this.GenerateMap = function(result) {
 
         let datas = result.split('\n');
-
-        let heights = [];
 
         this.row = 81;
         this.colume = 81;
@@ -112,15 +99,14 @@ function Map(map, window) {
                 }
 
             }
-            heights.push(elevation);
+            scope.heights.push(elevation);
         }
-
         // console.log(this.low_heights);
         // console.log(this.middle_heights);
         // console.log(heights);
 
         //绘制
-        Draw(heights);
+        Draw(scope.heights);
         DrawObjects(scope.points, 'point');
         DrawChess();
         CreateHouses();

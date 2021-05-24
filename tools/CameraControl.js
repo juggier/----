@@ -1,6 +1,7 @@
 import{
     EventDispatcher,
     MOUSE,
+    TOUCH,
     Quaternion,
     Vector2,
     Vector3
@@ -27,7 +28,7 @@ var CameraControl = function ( object, domElement) {
     let LODLEVEL = {LEVEL0: 0,LEVEL1: 1,LEVEL2: 2,LEVEL3: 3 };
     let ZOOMS = [ 2, 0.9, 0.5, 0.25];
 
-    this.lodLevel = LODLEVEL.LEVEL3;
+    this.lodLevel = LODLEVEL.LEVEL1;
     this.minZoom = 0;
     this.maxZoom = Infinity;
     
@@ -37,6 +38,8 @@ var CameraControl = function ( object, domElement) {
 
     //鼠标开关
     this.mouseButtons = {LEFT: MOUSE.PAN, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.DOLLY};
+    //手指开关
+    this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_PAN };
 
     //重置相关
     this.target0 = this.target.clone();
@@ -178,6 +181,10 @@ var CameraControl = function ( object, domElement) {
         scope.domElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
         scope.domElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
 
+        scope.domElement.removeEventListener('touchstart', onTouchStart);
+        scope.domElement.removeEventListener('touchend', onTouchEnd);
+        scope.domElement.removeEventListener('touchmove', onTouchMove);
+
 
         if (scope._domElementKeyEvents !== null) {
 
@@ -310,7 +317,6 @@ var CameraControl = function ( object, domElement) {
         dollyEnd.set(event.clientX,event.clientY);
 
         dollyDelta.subVectors(dollyEnd,dollyStart);
-        // console.log(dollyDelta.y);
 
         if( dollyDelta.y > 0 ){
             
@@ -349,11 +355,12 @@ var CameraControl = function ( object, domElement) {
     }
 
     function handleMouseWheel( event ){
-        if(event.deltaY < 0){
+        //console.log(event.deltaY);
+        if(event.deltaY < -60 && event.deltaY > -90){                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
             dollyIn(getZoomScale());
 
-        }else if (event.deltaY > 0){
+        }else if (event.deltaY > 60 && event.deltaY < 90){
 
             dollyOut(getZoomScale());
         }
@@ -533,6 +540,195 @@ var CameraControl = function ( object, domElement) {
 
     }
 
+    //手指控制
+    function handleTouchStartPan(event) {
+
+        if (event.touches.length == 1) {
+
+            panStart.set(event.touches[0].pageX, event.touches[0].pageY);
+
+        } else {
+
+            var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
+            var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+
+            panStart.set(x, y);
+
+        }
+
+    }
+
+    function handleTouchStartDollyPan(event) {
+
+        if (scope.enableZoom) handleTouchStartDolly(event);
+
+        if (scope.enablePan) handleTouchStartPan(event);
+
+    }
+
+    function handleTouchMovePan(event) {
+
+        if (event.touches.length == 1) {
+
+            panEnd.set(event.touches[0].pageX, event.touches[0].pageY);
+
+        } else {
+
+            var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
+            var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+
+            panEnd.set(x, y);
+
+        }
+
+        panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
+
+        pan(panDelta.x, panDelta.y);
+
+        panStart.copy(panEnd);
+
+    }
+
+    function handleTouchMoveDolly(event) {
+
+        var dx = event.touches[0].pageX - event.touches[1].pageX;
+        var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+        var distance = Math.sqrt(dx * dx + dy * dy);
+
+        dollyEnd.set(0, distance);
+
+        dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+
+        dollyOut(dollyDelta.y);
+
+        dollyStart.copy(dollyEnd);
+
+    }
+
+    function handleTouchMoveDollyPan(event) {
+
+        if (scope.enableZoom) handleTouchMoveDolly(event);
+
+        if (scope.enablePan) handleTouchMovePan(event);
+
+    }
+
+
+    function onTouchStart(event) {
+
+        if (scope.enabled === false) return;
+
+        event.preventDefault(); // prevent scrolling
+
+        switch (event.touches.length) {
+
+            case 1:
+
+                switch (scope.touches.ONE) {
+
+                    case TOUCH.PAN:
+
+                        if (scope.enablePan === false) return;
+
+                        handleTouchStartPan(event);
+
+                        state = STATE.TOUCH_PAN;
+
+                        break;
+
+                    default:
+
+                        state = STATE.NONE;
+
+                }
+
+                break;
+
+            case 2:
+
+                switch (scope.touches.TWO) {
+
+                    case TOUCH.DOLLY_PAN:
+
+                        if (scope.enableZoom === false && scope.enablePan === false) return;
+
+                        handleTouchStartDollyPan(event);
+
+                        state = STATE.TOUCH_DOLLY_PAN;
+
+                        break;
+
+                    default:
+
+                        state = STATE.NONE;
+
+                }
+
+                break;
+
+            default:
+
+                state = STATE.NONE;
+
+        }
+
+        if (state !== STATE.NONE) {
+
+            scope.dispatchEvent(startEvent);
+
+        }
+
+    }
+
+    function onTouchMove(event) {
+
+        if (scope.enabled === false) return;
+
+        event.preventDefault(); // prevent scrolling
+
+        switch (state) {
+
+            case STATE.TOUCH_PAN:
+
+                if (scope.enablePan === false) return;
+
+                handleTouchMovePan(event);
+
+                scope.update();
+
+                break;
+
+            case STATE.TOUCH_DOLLY_PAN:
+
+                if (scope.enableZoom === false && scope.enablePan === false) return;
+
+                handleTouchMoveDollyPan(event);
+
+                scope.update();
+
+                break;
+
+            default:
+
+                state = STATE.NONE;
+
+        }
+
+    }
+
+    function onTouchEnd(event) {
+
+        if (scope.enabled === false) return;
+
+        //handleTouchEnd(event);
+
+        scope.dispatchEvent(endEvent);
+
+        state = STATE.NONE;
+
+    }
+
     function onContextMenu ( event ){
 
         if(scope.enabled === false) return;
@@ -544,6 +740,10 @@ var CameraControl = function ( object, domElement) {
 
     scope.domElement.addEventListener('pointerdown', onPointerDown);
     scope.domElement.addEventListener('wheel', onMouseWheel);
+
+    scope.domElement.addEventListener('touchstart', onTouchStart);
+    scope.domElement.addEventListener('touchend', onTouchEnd);
+    scope.domElement.addEventListener('touchmove', onTouchMove);
 
     this.update();
 };

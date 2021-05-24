@@ -316,13 +316,14 @@
         //按钮事件
         const botton2 = document.querySelector('#generate');
         botton2.addEventListener('click', e => {
+            if(map.heights.length == 0){ 
 
                 let xmlhttp = new XMLHttpRequest;
-                
-                xmlhttp.onreadystatechange = function(){
-                    if(xmlhttp.readyState == 4 && xmlhttp.status == 200){
+
+                xmlhttp.onreadystatechange = function () {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                         let return_value = xmlhttp.responseText;
-                        console.log(return_value);
+                        //console.log(return_value);
                         map.GenerateMap(return_value);
 
                         console.log("开始游戏");
@@ -331,11 +332,13 @@
                         Begin_Game = true;
                     }
                 }
-
-                xmlhttp.open("post", "http://10.251.239.17:8889/-----/datas/Mapheight.txt", true);
-                xmlhttp.send();
-
                 
+                xmlhttp.open("post", "http://10.251.239.17:8889/-----/datas/Mapheight.txt", true);
+                //xmlhttp.open("post", "http://127.125.123.123:8889/-----/datas/Mapheight.txt", true);
+                xmlhttp.send();
+            }
+            // else
+            //     console.log('game has been started');
 
         }, false);
 
